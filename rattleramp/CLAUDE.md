@@ -68,7 +68,5 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
 - App icon (rattlesnake on a skateboard) is drawn in code: `ICON_OUT=assets/icon flutter test
   test/icon_test.dart && dart run flutter_launcher_icons`. The tool rewrites
   `ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS` in the iOS pbxproj — revert that hunk.
-  Linux has no generator: `sips -Z 256 assets/icon/icon.png --out linux/app_icon.png` (release-linux.yml packs it
-  into the AppImage).
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
 - `dart format -l 120`.
