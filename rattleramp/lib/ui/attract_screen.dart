@@ -2,6 +2,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../core/trick_defs.dart';
+import '../game/avatar_sprites.dart';
 import '../game/rattle_game.dart';
 import 'app.dart';
 import 'theme.dart';
@@ -11,6 +12,7 @@ import 'tuning_panel.dart';
 /// a Beginner ride; the Pro button starts Pro.
 class AttractScreen extends StatefulWidget {
   final TrickBook book;
+  final AvatarSprites sprites;
   final Settings settings;
   final TrickToken daily;
   final void Function(bool pro) onStart;
@@ -19,6 +21,7 @@ class AttractScreen extends StatefulWidget {
   const AttractScreen({
     super.key,
     required this.book,
+    required this.sprites,
     required this.settings,
     required this.daily,
     required this.onStart,
@@ -30,7 +33,12 @@ class AttractScreen extends StatefulWidget {
 }
 
 class _AttractScreenState extends State<AttractScreen> with SingleTickerProviderStateMixin {
-  late final RattleGame game = RattleGame(book: widget.book, config: widget.settings.config, autopilot: true);
+  late final RattleGame game = RattleGame(
+    book: widget.book,
+    config: widget.settings.config,
+    autopilot: true,
+    sprites: widget.sprites,
+  );
   late final AnimationController pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
     ..repeat(reverse: true);
 

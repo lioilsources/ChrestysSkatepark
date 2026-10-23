@@ -3,35 +3,40 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 
+import '../core/avatar.dart';
 import '../core/ride_sim.dart';
 import '../core/trick_defs.dart';
 import '../ui/theme.dart';
+import 'avatar_sprites.dart';
 import 'rattle_game.dart';
 import 'style_paint.dart';
 
 /// Skater root: placed at the board contact point and rotated to the pose
-/// angle. Board and body are separate layers so spin (horizontal squash of
-/// the whole rig), flip (board rotation) and grab (body shape) compose
-/// freely — the same split the sprite version will use in M2.
-///
-/// Every frame [update] solves one [_Rig] in skater-local metres (y up,
-/// +x = facing forward); both layers draw from it.
+/// angle. Draws via [paintSkater], which the avatar picker reuses.
 class SkaterComponent extends PositionComponent {
   final RattleGame game;
-  SkaterComponent(this.game) {
-    addAll([_BoardLayer(this), _BodyLayer(this)]);
-  }
+  SkaterComponent(this.game);
 
   SkaterPose pose = const SkaterPose(x: 0, y: 0, angle: 0, facing: 1);
-  late _Rig _rig = _Rig.solve(const SkaterPose(x: 0, y: 0, angle: 0, facing: 1));
 
   @override
   void update(double dt) {
     pose = game.sim.pose;
-    _rig = _Rig.solve(pose);
     position = Vector2(pose.x, pose.y);
     angle = pose.angle;
   }
+
+  @override
+  void render(Canvas canvas) => paintSkater(canvas, pose, game.avatar, game.sprites);
+}
+
+/// Board and body in skater-local metres (y up, +x = facing forward).
+/// Board and body stay separate so spin (horizontal squash of the rig),
+/// flip (board rotation) and grab (body shape) compose freely.
+void paintSkater(Canvas canvas, SkaterPose p, Avatar avatar, AvatarSprites sprites) {
+  final rig = _Rig.solve(p);
+  _paintBoard(canvas, p, rig, sprites.decks[avatar.deck]);
+  _paintBody(canvas, p, rig, avatar, sprites.heads[avatar.preset.id]);
 }
 
 const double _boardY = 0.1;
@@ -167,114 +172,172 @@ Offset _joint(Offset a, Offset b, double l1, double l2, Offset bend) {
   return a + dir * along + perp * h;
 }
 
-class _BoardLayer extends Component {
-  final SkaterComponent sk;
-  _BoardLayer(this.sk);
+void _paintBoard(Canvas canvas, SkaterPose p, _Rig r, Image? graphic) {
+  canvas.save();
+  canvas.scale(p.facing == 0 ? 0.001 : p.facing, 1);
+  if (p.bail > 0) {
+    canvas.translate(-p.bail * 1.1, 0);
+    canvas.rotate(p.bail * 0.5);
+  }
+  canvas.translate(r.boardCentre.dx, r.boardCentre.dy);
+  canvas.rotate(r.boardTilt);
 
-  @override
-  void render(Canvas canvas) {
-    final p = sk.pose;
-    final r = sk._rig;
+  // Tumble wraps end over end around the back foot.
+  if (p.tumble != 0) {
+    canvas.translate(-0.3, 0);
+    canvas.rotate(-2 * math.pi * p.tumble);
+    canvas.translate(0.3, 0);
+  }
+
+  // Shove: rotation about the vertical axis foreshortens the length.
+  // The board also drifts towards the side it is spinning to, so
+  // backside and frontside shove-its read apart.
+  final cs = math.cos(2 * math.pi * p.shove);
+  canvas.translate(0.1 * math.sin(2 * math.pi * p.shove), 0);
+  canvas.scale(cs.abs() < 0.14 ? 0.14 * (cs < 0 ? -1 : 1) : cs, 1);
+
+  // Roll: seen from slightly above, so the deck face shows as it turns
+  // and the board bobs one way for kickflips, the other for heelflips.
+  final a = 2 * math.pi * p.roll;
+  final cr = math.cos(a), sr = math.sin(a);
+  canvas.translate(0, 0.05 * sr);
+  final half = 0.03 + 0.07 * sr.abs();
+  final deck = Paint()..color = Palette.board;
+  final wheel = Paint()..color = Palette.skater;
+  final wy = -(half + 0.035) * cr.sign;
+  final face = RRect.fromRectAndRadius(
+    Rect.fromLTRB(-0.38, -half * 0.7, 0.38, half * 0.7),
+    Radius.circular(half * 0.7),
+  );
+  drawStyled(canvas, ink: 0.04, [
+    // Wheels first so the deck overlaps the trucks.
+    if (cr.abs() > 0.25) ...[
+      (path: circlePath(Offset(-0.27, wy), 0.04), paint: wheel),
+      (path: circlePath(Offset(0.27, wy), 0.04), paint: wheel),
+    ],
+    (
+      path: Path()..addRRect(RRect.fromRectAndRadius(Rect.fromLTRB(-0.42, -half, 0.42, half), Radius.circular(half))),
+      paint: deck,
+    ),
+    // Face towards the viewer: grip on top half of the turn, graphic below.
+    if (sr.abs() > 0.15) (path: Path()..addRRect(face), paint: sr > 0 ? (Paint()..color = Palette.grip) : deck),
+  ]);
+  if (sr < -0.15 && graphic != null) {
     canvas.save();
-    canvas.scale(p.facing == 0 ? 0.001 : p.facing, 1);
-    if (p.bail > 0) {
-      canvas.translate(-p.bail * 1.1, 0);
-      canvas.rotate(p.bail * 0.5);
-    }
-    canvas.translate(r.boardCentre.dx, r.boardCentre.dy);
-    canvas.rotate(r.boardTilt);
-
-    // Tumble wraps end over end around the back foot.
-    if (p.tumble != 0) {
-      canvas.translate(-0.3, 0);
-      canvas.rotate(-2 * math.pi * p.tumble);
-      canvas.translate(0.3, 0);
-    }
-
-    // Shove: rotation about the vertical axis foreshortens the length.
-    // The board also drifts towards the side it is spinning to, so
-    // backside and frontside shove-its read apart.
-    final cs = math.cos(2 * math.pi * p.shove);
-    canvas.translate(0.1 * math.sin(2 * math.pi * p.shove), 0);
-    canvas.scale(cs.abs() < 0.14 ? 0.14 * (cs < 0 ? -1 : 1) : cs, 1);
-
-    // Roll: seen from slightly above, so the deck face shows as it turns
-    // and the board bobs one way for kickflips, the other for heelflips.
-    final a = 2 * math.pi * p.roll;
-    final cr = math.cos(a), sr = math.sin(a);
-    canvas.translate(0, 0.05 * sr);
-    final half = 0.03 + 0.07 * sr.abs();
-    final deck = Paint()..color = Palette.board;
-    final wheel = Paint()..color = Palette.skater;
-    final wy = -(half + 0.035) * cr.sign;
-    drawStyled(canvas, ink: 0.04, [
-      // Wheels first so the deck overlaps the trucks.
-      if (cr.abs() > 0.25) ...[
-        (path: circlePath(Offset(-0.27, wy), 0.04), paint: wheel),
-        (path: circlePath(Offset(0.27, wy), 0.04), paint: wheel),
-      ],
-      (
-        path: Path()..addRRect(RRect.fromRectAndRadius(Rect.fromLTRB(-0.42, -half, 0.42, half), Radius.circular(half))),
-        paint: deck,
-      ),
-      // Face towards the viewer: grip on top half of the turn, graphic below.
-      if (sr.abs() > 0.15)
-        (
-          path: Path()
-            ..addRRect(
-              RRect.fromRectAndRadius(Rect.fromLTRB(-0.38, -half * 0.7, 0.38, half * 0.7), Radius.circular(half * 0.7)),
-            ),
-          paint: sr > 0 ? (Paint()..color = Palette.grip) : deck,
-        ),
-    ]);
+    canvas.clipRRect(face);
+    canvas.scale(1, -1);
+    canvas.drawImageRect(
+      graphic,
+      Rect.fromLTWH(0, 0, graphic.width.toDouble(), graphic.height.toDouble()),
+      Rect.fromLTRB(face.left, -face.bottom, face.right, -face.top),
+      Paint()..filterQuality = FilterQuality.medium,
+    );
     canvas.restore();
   }
+  canvas.restore();
 }
 
-class _BodyLayer extends Component {
-  final SkaterComponent sk;
-  _BodyLayer(this.sk);
+/// Head sprite height in metres — cartoon proportions, the face must read
+/// on a tablet across the bar.
+const double _headHeight = 0.74;
 
-  @override
-  void render(Canvas canvas) {
-    final p = sk.pose;
-    final r = sk._rig;
-    canvas.save();
-    canvas.scale(p.facing == 0 ? 0.001 : p.facing, 1);
-    if (p.bail > 0) {
-      canvas.translate(0.2 * p.bail, 0.1);
-      canvas.rotate(-1.45 * p.bail);
-    }
+void _paintBody(Canvas canvas, SkaterPose p, _Rig r, Avatar avatar, Image? head) {
+  canvas.save();
+  canvas.scale(p.facing == 0 ? 0.001 : p.facing, 1);
+  if (p.bail > 0) {
+    canvas.translate(0.2 * p.bail, 0.1);
+    canvas.rotate(-1.45 * p.bail);
+  }
 
-    Paint stroke(double width) => Paint()
-      ..color = Palette.skater
-      ..strokeWidth = width
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
+  final outfit = avatar.outfit;
+  final skin = Color(avatar.preset.skin);
+  Paint stroke(Color c, double width) => Paint()
+    ..color = c
+    ..strokeWidth = width
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round
+    ..style = PaintingStyle.stroke;
+  Path line(Offset a, Offset b) => Path()
+    ..moveTo(a.dx, a.dy)
+    ..lineTo(b.dx, b.dy);
 
-    StyledShape limb(Offset a, Offset b, double l1, double l2, Offset bend, double width) {
-      final j = _joint(a, b, l1, l2, bend);
-      return (
-        path: Path()
-          ..moveTo(a.dx, a.dy)
-          ..lineTo(j.dx, j.dy)
-          ..lineTo(b.dx, b.dy),
-        paint: stroke(width),
-      );
-    }
-
-    drawStyled(canvas, [
-      for (final foot in r.feet) limb(r.hip, foot, _thigh, _shin, const Offset(1, 0), 0.09),
+  List<StyledShape> leg(Offset foot) {
+    final knee = _joint(r.hip, foot, _thigh, _shin, const Offset(1, 0));
+    return [
       (
         path: Path()
           ..moveTo(r.hip.dx, r.hip.dy)
-          ..lineTo(r.shoulder.dx, r.shoulder.dy),
-        paint: stroke(0.09),
+          ..lineTo(knee.dx, knee.dy)
+          ..lineTo(foot.dx, foot.dy),
+        paint: stroke(Color(outfit.pants), 0.13),
       ),
-      (path: circlePath(r.shoulder + const Offset(0.03, 0.2), 0.13), paint: Paint()..color = Palette.skater),
-      for (final hand in r.hands) limb(r.shoulder, hand, _upperArm, _forearm, const Offset(0, -1), 0.07),
-    ]);
-    canvas.restore();
+      (
+        path: Path()
+          ..addRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromCenter(center: foot + const Offset(0.05, 0.01), width: 0.22, height: 0.09),
+              const Radius.circular(0.04),
+            ),
+          ),
+        paint: Paint()..color = Color(outfit.shoes),
+      ),
+    ];
   }
+
+  List<StyledShape> arm(Offset hand) {
+    final elbow = _joint(r.shoulder, hand, _upperArm, _forearm, const Offset(0, -1));
+    return [
+      (path: line(elbow, hand), paint: stroke(skin, 0.075)),
+      (path: line(r.shoulder, elbow), paint: stroke(Color(outfit.shirt), 0.11)),
+      (path: circlePath(hand, 0.05), paint: Paint()..color = skin),
+    ];
+  }
+
+  // Mascot: a rattle tail swinging behind the hips.
+  final tail = <StyledShape>[];
+  if (avatar.preset.mascot) {
+    final tip = r.hip + const Offset(-0.55, -0.05);
+    tail.add((
+      path: Path()
+        ..moveTo(r.hip.dx, r.hip.dy)
+        ..quadraticBezierTo(r.hip.dx - 0.35, r.hip.dy - 0.35, tip.dx, tip.dy),
+      paint: stroke(skin, 0.1),
+    ));
+    for (var i = 0; i < 3; i++) {
+      tail.add((
+        path: circlePath(tip + Offset(-0.05 * i, 0.07 * i), 0.055 - 0.008 * i),
+        paint: Paint()..color = const Color(0xFFF2D49B),
+      ));
+    }
+  }
+
+  drawStyled(canvas, [
+    ...tail,
+    ...arm(r.hands[1]),
+    for (final foot in r.feet) ...leg(foot),
+    (path: line(r.hip, r.shoulder), paint: stroke(Color(outfit.shirt), 0.24)),
+  ]);
+
+  // Head: sprite (stored facing left, so mirrored to face +x), leaning
+  // with the torso. Falls back to a plain circle.
+  final lean = math.atan2(r.shoulder.dx - r.hip.dx, r.shoulder.dy - r.hip.dy);
+  if (head != null) {
+    final h = _headHeight, w = _headHeight * head.width / head.height;
+    canvas.save();
+    canvas.translate(r.shoulder.dx + 0.04, r.shoulder.dy - 0.12);
+    canvas.rotate(-lean);
+    canvas.scale(-1, -1);
+    canvas.drawImageRect(
+      head,
+      Rect.fromLTWH(0, 0, head.width.toDouble(), head.height.toDouble()),
+      Rect.fromLTWH(-w / 2, -h, w, h),
+      Paint()..filterQuality = FilterQuality.medium,
+    );
+    canvas.restore();
+  } else {
+    drawStyled(canvas, [(path: circlePath(r.shoulder + const Offset(0.03, 0.2), 0.15), paint: Paint()..color = skin)]);
+  }
+
+  drawStyled(canvas, arm(r.hands[0]));
+  canvas.restore();
 }

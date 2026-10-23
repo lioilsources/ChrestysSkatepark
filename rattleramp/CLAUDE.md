@@ -1,8 +1,8 @@
 # CLAUDE.md — RattleRamp
 
 Tablet kiosk skate game for bar U Chřestýše. Plan: `../Prompts/00-RATTLERAMP_PLAN.md`.
-Implemented: **M0** (feel prototype) + **M1** (trick grammar, trick book, hint strip, scoring).
-M2–M5 not started — the plan gates everything on M0 feeling right on the real tablet.
+Implemented: **M0** (feel prototype) + **M1** (trick grammar, trick book, hint strip, scoring) + **M2** (avatars).
+M3–M5 not started.
 
 ## Decisions from Ol1n (open questions in the plan)
 
@@ -68,5 +68,12 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
 - App icon (rattlesnake on a skateboard) is drawn in code: `ICON_OUT=assets/icon flutter test
   test/icon_test.dart && dart run flutter_launcher_icons`. The tool rewrites
   `ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS` in the iOS pbxproj — revert that hunk.
+- Avatars (M2): 8 presets in `lib/core/avatar.dart` (Chřestýš mascot first, with a rattle tail), 6 outfits, 6 deck
+  graphics. Body/limbs are procedural (outfit colours) on the same IK rig; the head is a sprite, stored facing LEFT.
+  Picker sits between attract and ride; 5 s countdown starts the ride with the current pick, each tap restarts it.
+- Sprites: `tool/spritegen.py` — FLUX.1-schnell NIM on the Spark (localhost only:
+  `ssh -f -N -L 18030:localhost:8030 spark-99bb`) → BiRefNet cut-out in ComfyUI (`spark-99bb:8188`, one job at a
+  time, check `/queue`, ComfyUI is only up in its daytime window) → `assets/sprites/{heads,decks}/`. Check with
+  `SNAP_DIR=/tmp/x flutter test test/avatar_sheet_test.dart`.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
 - `dart format -l 120`.

@@ -2,14 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../core/avatar.dart';
 import '../core/ride_config.dart';
 import '../core/trick_defs.dart';
+import '../game/avatar_sprites.dart';
 import 'attract_screen.dart';
+import 'avatar_screen.dart';
 import 'ride_screen.dart';
 import 'theme.dart';
 import 'trick_book_screen.dart';
 
-enum AppScreen { attract, ride, trickBook }
+enum AppScreen { attract, avatar, ride, trickBook }
 
 /// Session-wide settings. In-memory for now; persisted + PIN-gated in M4.
 class Settings extends ChangeNotifier {
@@ -20,6 +23,9 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Last picked avatar; the picker opens on it so regulars just tap JEĎ.
+  Avatar avatar = Avatar.initial;
+
   ArtStyle get style => Palette.style;
   set style(ArtStyle s) {
     Palette.style = s;
@@ -29,7 +35,8 @@ class Settings extends ChangeNotifier {
 
 class RattleApp extends StatefulWidget {
   final TrickBook book;
-  const RattleApp({super.key, required this.book});
+  final AvatarSprites sprites;
+  const RattleApp({super.key, required this.book, this.sprites = AvatarSprites.empty});
 
   @override
   State<RattleApp> createState() => _RattleAppState();
@@ -52,7 +59,7 @@ class _RattleAppState extends State<RattleApp> {
               ? ColorScheme.light(primary: Palette.rampEdge, secondary: Palette.coping)
               : ColorScheme.dark(primary: Palette.rampEdge, secondary: Palette.coping),
         ),
-        home: _Shell(book: widget.book, settings: settings),
+        home: _Shell(book: widget.book, sprites: widget.sprites, settings: settings),
       ),
     );
   }
@@ -60,8 +67,9 @@ class _RattleAppState extends State<RattleApp> {
 
 class _Shell extends StatefulWidget {
   final TrickBook book;
+  final AvatarSprites sprites;
   final Settings settings;
-  const _Shell({required this.book, required this.settings});
+  const _Shell({required this.book, required this.sprites, required this.settings});
 
   @override
   State<_Shell> createState() => _ShellState();
@@ -86,7 +94,7 @@ class _ShellState extends State<_Shell> {
 
   void _kickIdle() {
     _idle?.cancel();
-    if (screen == AppScreen.trickBook) {
+    if (screen == AppScreen.trickBook || screen == AppScreen.avatar) {
       _idle = Timer(idleTimeout, () => _go(AppScreen.attract));
     }
   }
@@ -113,8 +121,19 @@ class _ShellState extends State<_Shell> {
             book: widget.book,
             settings: settings,
             daily: daily,
-            onStart: (pro) => _go(AppScreen.ride, pro: pro),
+            sprites: widget.sprites,
+            onStart: (pro) => _go(AppScreen.avatar, pro: pro),
             onTrickBook: () => _go(AppScreen.trickBook),
+          ),
+          AppScreen.avatar => AvatarScreen(
+            key: ValueKey('avatar-${settings.style}'),
+            initial: settings.avatar,
+            sprites: widget.sprites,
+            onGo: (a) {
+              settings.avatar = a;
+              _go(AppScreen.ride);
+            },
+            onBack: () => _go(AppScreen.attract),
           ),
           AppScreen.ride => RideScreen(
             key: ValueKey('ride-${settings.style}'),
@@ -122,6 +141,7 @@ class _ShellState extends State<_Shell> {
             settings: settings,
             proMode: proMode,
             daily: daily,
+            sprites: widget.sprites,
             onDone: () => _go(AppScreen.attract),
           ),
           AppScreen.trickBook => TrickBookScreen(

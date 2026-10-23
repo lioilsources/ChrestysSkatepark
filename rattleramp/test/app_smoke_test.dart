@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rattleramp/ui/app.dart';
+import 'package:rattleramp/ui/avatar_screen.dart';
 import 'package:rattleramp/ui/swipe_grid.dart';
 import 'package:rattleramp/ui/trick_book_screen.dart';
 
@@ -28,6 +29,12 @@ void main() {
 
       await tester.tapAt(Offset(size.width / 2, size.height * 0.4));
       await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(AvatarScreen), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('preset-afro')));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(find.textContaining('JEĎ!'));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 300));
       final grid = find.byType(SwipeGrid);
       expect(grid, findsOneWidget);
 

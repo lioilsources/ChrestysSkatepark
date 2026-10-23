@@ -5,11 +5,13 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/painting.dart';
 
+import '../core/avatar.dart';
 import '../core/ride_config.dart';
 import '../core/ride_sim.dart';
 import '../core/trick_defs.dart';
 import '../core/trick_parser.dart';
 import '../ui/theme.dart';
+import 'avatar_sprites.dart';
 import 'cue_component.dart';
 import 'ramp_component.dart';
 import 'skater_component.dart';
@@ -42,7 +44,17 @@ class RattleGame extends FlameGame {
 
   Rect? _worldRect;
 
-  RattleGame({required this.book, required this.config, this.autopilot = false}) : parser = TrickParser(book) {
+  Avatar avatar;
+  final AvatarSprites sprites;
+
+  RattleGame({
+    required this.book,
+    required this.config,
+    this.autopilot = false,
+    Avatar? avatar,
+    this.sprites = AvatarSprites.empty,
+  }) : avatar = avatar ?? Avatar.initial,
+       parser = TrickParser(book) {
     sim = RideSim(config: config, parser: parser);
   }
 
@@ -122,6 +134,8 @@ class RattleGame extends FlameGame {
     if (sim.finished && !_finishedReported) {
       _finishedReported = true;
       if (autopilot) {
+        // Attract loop shows off a different character every run.
+        avatar = Avatar.of(presets[_rng.nextInt(presets.length)]);
         startRide();
       } else {
         onFinished?.call(sim);

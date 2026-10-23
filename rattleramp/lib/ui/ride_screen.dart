@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../core/ride_sim.dart';
 import '../core/scoring.dart';
 import '../core/trick_defs.dart';
+import '../game/avatar_sprites.dart';
 import '../game/rattle_game.dart';
 import 'app.dart';
 import 'pattern_painter.dart';
@@ -16,6 +17,7 @@ import 'theme.dart';
 
 class RideScreen extends StatefulWidget {
   final TrickBook book;
+  final AvatarSprites sprites;
   final Settings settings;
   final bool proMode;
   final TrickToken daily;
@@ -24,6 +26,7 @@ class RideScreen extends StatefulWidget {
   const RideScreen({
     super.key,
     required this.book,
+    required this.sprites,
     required this.settings,
     required this.proMode,
     required this.daily,
@@ -59,10 +62,16 @@ class _RideScreenState extends State<RideScreen> {
   @override
   void initState() {
     super.initState();
-    game = RattleGame(book: widget.book, config: widget.settings.config)
-      ..startRide(proMode: widget.proMode, dailyTokenId: widget.daily.id)
-      ..onEvent = _onEvent
-      ..onFinished = _onFinished;
+    game =
+        RattleGame(
+            book: widget.book,
+            config: widget.settings.config,
+            avatar: widget.settings.avatar,
+            sprites: widget.sprites,
+          )
+          ..startRide(proMode: widget.proMode, dailyTokenId: widget.daily.id)
+          ..onEvent = _onEvent
+          ..onFinished = _onFinished;
     speed = game.sim.speed;
     _refreshHints();
   }
