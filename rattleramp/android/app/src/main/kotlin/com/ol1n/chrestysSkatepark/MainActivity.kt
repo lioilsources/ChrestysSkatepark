@@ -1,4 +1,4 @@
-package cz.chrestys.rattleramp
+package com.ol1n.chrestysSkatepark
 
 import io.flutter.embedding.android.FlutterActivity
 
