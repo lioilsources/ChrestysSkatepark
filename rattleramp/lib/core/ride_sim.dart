@@ -80,14 +80,20 @@ class SkaterPose {
   /// −1…1 horizontal scale: sign = facing, |value| < 1 = mid-spin.
   final double facing;
 
-  /// Board roll around its long axis, in full turns.
-  final double flipTurns;
+  /// Board rotation in full turns: roll = long axis, shove = vertical axis,
+  /// tumble = short axis (in the drawing plane).
+  final double roll;
+  final double shove;
+  final double tumble;
+
+  /// 0…1 how far the feet lift off the board for a flip.
+  final double flip;
 
   /// 0…1 how far the hand reaches for the board.
   final double grab;
 
-  /// Where along the board the hand grabs, −1 tail … +1 nose.
-  final double grabAt;
+  /// Which hand, where and with what body shape.
+  final GrabLook grabLook;
   final double crouch;
 
   /// 0…1 progress of a bail fall, 0 when riding.
@@ -98,9 +104,12 @@ class SkaterPose {
     required this.y,
     required this.angle,
     required this.facing,
-    this.flipTurns = 0,
+    this.roll = 0,
+    this.shove = 0,
+    this.tumble = 0,
+    this.flip = 0,
     this.grab = 0,
-    this.grabAt = 0,
+    this.grabLook = const GrabLook(),
     this.crouch = 0,
     this.bail = 0,
   });
@@ -498,9 +507,12 @@ class RideSim {
     final angle = exit - dir * (math.pi / 2) * math.sin(math.pi * u);
 
     var spin = 0.0;
-    var flips = 0.0;
+    var roll = 0.0;
+    var shove = 0.0;
+    var tumble = 0.0;
+    var flip = 0.0;
     var grab = 0.0;
-    var grabAt = 0.0;
+    var look = const GrabLook();
     final a = _attempt;
     if (a != null && a.parse.ok) {
       var t0 = a.tStart;
@@ -511,11 +523,16 @@ class RideSim {
           case TokenKind.spin:
             spin += k * tok.degrees * math.pi / 180;
           case TokenKind.flip:
-            flips += k * math.max(1, tok.moves ~/ 2);
+            final f = tok.flipLook;
+            final e = _ease(k);
+            roll += e * f.roll;
+            shove += e * f.shove;
+            tumble += e * f.tumble;
+            if (k > 0 && k < 1) flip = math.sin(math.pi * k);
           case TokenKind.grab:
             if (k > 0 && k < 1) {
               grab = math.sin(math.pi * k);
-              grabAt = (tok.path.last % 3 - 1).toDouble();
+              look = tok.grabLook;
             }
         }
         t0 += dur;
@@ -526,12 +543,18 @@ class RideSim {
       y: c.y + airHeight,
       angle: angle,
       facing: dir * stance * math.cos(math.pi * u + spin),
-      flipTurns: flips,
+      roll: roll,
+      shove: shove,
+      tumble: tumble,
+      flip: flip,
       grab: grab,
-      grabAt: grabAt,
-      crouch: 0.25 + 0.4 * grab,
+      grabLook: look,
+      crouch: 0.25 + 0.3 * flip + 0.4 * grab,
     );
   }
+
+  /// Smoothstep, so the board snaps out of and back under the feet.
+  static double _ease(double k) => k * k * (3 - 2 * k);
 
   // ── Replay ────────────────────────────────────────────────────────────
 

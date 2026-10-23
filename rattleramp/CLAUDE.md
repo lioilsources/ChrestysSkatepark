@@ -51,6 +51,8 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
 
 - Gameplay logic only in `lib/core`; Flame/Flutter read `RideSim` state and never mutate it except via `addInput`.
 - Same config + same inputs ⇒ same ride. Don't add RNG/wall-clock to the sim (replays in M3 rely on it).
-- Skater = separate board/body layers (spin = horizontal squash of the rig, flip = board roll, grab = arm pose).
+- Skater = separate board/body layers. Spin = horizontal squash of the rig; flip = board roll/shove/tumble from
+  the flip's `look` in tricks.json; grab = hand + spot + body style (`GrabStyle`) + tilt from the grab's `look`.
+  `SNAP_DIR=/tmp/x flutter test test/gallery_test.dart` renders every grab and flip upright for a visual check.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
 - `dart format -l 120`.

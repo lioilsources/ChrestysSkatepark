@@ -5,6 +5,74 @@ import 'dart:convert';
 
 enum TokenKind { spin, grab, flip }
 
+/// Which hand reaches for the board during a grab.
+enum GrabHand { front, back, both }
+
+/// Body shape held during a grab. Each style moves the board and the feet
+/// differently, so grabs read apart even as silhouettes.
+enum GrabStyle {
+  /// Knees up, board under the feet.
+  tuck,
+
+  /// Board pulled up behind the back (method, japan).
+  tweak,
+
+  /// Legs straight, board stood up on its tail (rocket, nosegrab).
+  stiff,
+
+  /// Feet off, scissor walk in the air (airwalk).
+  split,
+
+  /// Back foot kicked off and down (benihana).
+  kick,
+
+  /// Board held out to the side, arms spread (christ air).
+  spread,
+}
+
+/// How a grab looks: hand, spot on the board and body shape.
+class GrabLook {
+  final GrabHand hand;
+
+  /// −1 tail … +1 nose.
+  final double at;
+  final GrabStyle style;
+
+  /// Extra board tilt on top of the style's (rad, + = nose up), so grabs
+  /// sharing a style still read apart.
+  final double tilt;
+
+  const GrabLook({this.hand = GrabHand.front, this.at = 0, this.style = GrabStyle.tuck, this.tilt = 0});
+
+  factory GrabLook.fromJson(Map<String, dynamic> j) => GrabLook(
+    hand: GrabHand.values.byName(j['hand'] as String? ?? 'front'),
+    at: (j['at'] as num? ?? 0).toDouble(),
+    style: GrabStyle.values.byName(j['style'] as String? ?? 'tuck'),
+    tilt: (j['tilt'] as num? ?? 0).toDouble(),
+  );
+}
+
+/// How a flip rotates the board, in full turns per axis. Signs pick the
+/// direction (roll + = kickflip, shove + = backside).
+class FlipLook {
+  /// Around the long axis (kickflip / heelflip).
+  final double roll;
+
+  /// Around the vertical axis (shove-it, varial).
+  final double shove;
+
+  /// End over end around the short axis (impossible).
+  final double tumble;
+
+  const FlipLook({this.roll = 0, this.shove = 0, this.tumble = 0});
+
+  factory FlipLook.fromJson(Map<String, dynamic> j) => FlipLook(
+    roll: (j['roll'] as num? ?? 0).toDouble(),
+    shove: (j['shove'] as num? ?? 0).toDouble(),
+    tumble: (j['tumble'] as num? ?? 0).toDouble(),
+  );
+}
+
 /// One building block of a trick. Grabs and flips have a fixed node path;
 /// spins are matched by direction + length along the outer ring, so
 /// [path] holds a canonical example (starting at node 1) for the trick book.
@@ -19,6 +87,10 @@ class TrickToken {
   final int degrees;
   final bool frontside;
 
+  /// Grabs / flips only: how the trick is drawn.
+  final GrabLook grabLook;
+  final FlipLook flipLook;
+
   const TrickToken({
     required this.id,
     required this.name,
@@ -27,6 +99,8 @@ class TrickToken {
     required this.path,
     this.degrees = 0,
     this.frontside = true,
+    this.grabLook = const GrabLook(),
+    this.flipLook = const FlipLook(roll: 1),
   });
 
   int get moves => path.length - 1;
@@ -118,6 +192,12 @@ class TrickBook {
           kind: kind,
           base: g['base'] as int,
           path: (g['path'] as List).cast<int>(),
+          grabLook: g['look'] != null && kind == TokenKind.grab
+              ? GrabLook.fromJson(g['look'] as Map<String, dynamic>)
+              : const GrabLook(),
+          flipLook: g['look'] != null && kind == TokenKind.flip
+              ? FlipLook.fromJson(g['look'] as Map<String, dynamic>)
+              : const FlipLook(roll: 1),
         ),
     ];
 

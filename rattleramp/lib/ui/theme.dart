@@ -9,6 +9,7 @@ abstract final class Palette {
   static const coping = Color(0xFFFF4FD8);
   static const skater = Color(0xFFF4F1E8);
   static const board = Color(0xFFFFB238);
+  static const grip = Color(0xFF3A3F55);
   static const perfect = Color(0xFF5CFF8A);
   static const good = Color(0xFFFFE15C);
   static const late = Color(0xFFFF9A3C);
