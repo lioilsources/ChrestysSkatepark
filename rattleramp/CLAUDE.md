@@ -4,6 +4,12 @@ Tablet kiosk skate game for bar U Chřestýše. Plan: `../Prompts/00-RATTLERAMP_
 Implemented: **M0** (feel prototype) + **M1** (trick grammar, trick book, hint strip, scoring).
 M2–M5 not started — the plan gates everything on M0 feeling right on the real tablet.
 
+## Decisions from Ol1n (open questions in the plan)
+
+- Visual style: all three (neon / comic / pixel), switchable at runtime.
+- Platforms: both iPad and Android tablets. Kiosk (M4) must cover both: Android lock-task/screen pinning,
+  iPad Guided Access (or MDM single-app mode).
+
 ## Layout
 
 ```
@@ -54,5 +60,13 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
 - Skater = separate board/body layers. Spin = horizontal squash of the rig; flip = board roll/shove/tumble from
   the flip's `look` in tricks.json; grab = hand + spot + body style (`GrabStyle`) + tilt from the grab's `look`.
   `SNAP_DIR=/tmp/x flutter test test/gallery_test.dart` renders every grab and flip upright for a visual check.
+- Art styles (`ArtStyle` in `lib/ui/theme.dart`): neon, comic, pixel. `Palette.*` are getters on the active
+  style — never cache a palette colour in a `static final`/`const`. Game shapes go through `drawStyled`
+  (`lib/game/style_paint.dart`) which adds comic ink outlines or neon glow; pixel renders the whole game layer at
+  1/n resolution. Switch: STYL button on attract, or the tuning panel. Screen keys carry the style, so a switch
+  remounts the screen.
+- App icon (rattlesnake on a skateboard) is drawn in code: `ICON_OUT=assets/icon flutter test
+  test/icon_test.dart && dart run flutter_launcher_icons`. The tool rewrites
+  `ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS` in the iOS pbxproj — revert that hunk.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
 - `dart format -l 120`.

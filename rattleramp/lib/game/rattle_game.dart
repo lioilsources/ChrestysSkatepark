@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
@@ -12,6 +13,7 @@ import '../ui/theme.dart';
 import 'cue_component.dart';
 import 'ramp_component.dart';
 import 'skater_component.dart';
+import 'style_paint.dart';
 
 /// Hosts one [RideSim] and renders it. All gameplay lives in the sim; this
 /// class only steps it at a fixed rate, maps wall-clock releases to ride
@@ -65,6 +67,7 @@ class RattleGame extends FlameGame {
   Future<void> onLoad() async {
     view = WorldView(this);
     view.addAll([RampComponent(this), CueComponent(this), SkaterComponent(this)]);
+    add(BackdropComponent(this));
     add(view);
     view.fit(_worldRect ?? Offset.zero & size.toSize());
   }
@@ -73,6 +76,24 @@ class RattleGame extends FlameGame {
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
     if (isLoaded) view.fit(_worldRect ?? Offset.zero & size.toSize());
+  }
+
+  /// Pixel style: draw the whole game at 1/n resolution, then blow it up
+  /// with nearest-neighbour sampling.
+  @override
+  void render(Canvas canvas) {
+    final n = Palette.spec.pixel;
+    if (n <= 1 || size.x < 1 || size.y < 1) return super.render(canvas);
+    final w = (size.x / n).ceil(), h = (size.y / n).ceil();
+    final rec = ui.PictureRecorder();
+    final low = Canvas(rec)..scale(1 / n);
+    super.render(low);
+    final img = rec.endRecording().toImageSync(w, h);
+    canvas.save();
+    canvas.scale(n.toDouble());
+    canvas.drawImage(img, Offset.zero, Paint()..filterQuality = FilterQuality.none);
+    canvas.restore();
+    img.dispose();
   }
 
   /// Ride time "now", interpolated between fixed ticks with the wall clock.

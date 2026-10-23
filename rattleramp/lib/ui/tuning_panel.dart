@@ -34,6 +34,12 @@ void showTuningPanel(BuildContext context, Settings settings) {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('LADĚNÍ (M0)', style: hudStyle.copyWith(fontSize: 20, color: Palette.coping)),
+              const SizedBox(height: 8),
+              SegmentedButton<ArtStyle>(
+                segments: [for (final s in ArtStyle.values) ButtonSegment(value: s, label: Text(s.label))],
+                selected: {settings.style},
+                onSelectionChanged: (s) => settings.style = s.first,
+              ),
               slider(
                 'Šířka timing okna',
                 c.windowScale,

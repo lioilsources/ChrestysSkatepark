@@ -5,6 +5,7 @@ import 'package:flutter/painting.dart' show TextPainter, TextSpan, TextStyle, Te
 
 import '../ui/theme.dart';
 import 'rattle_game.dart';
+import 'style_paint.dart';
 
 /// Static U-ramp with decks. Path is rebuilt only when geometry changes.
 class RampComponent extends Component {
@@ -14,6 +15,7 @@ class RampComponent extends Component {
   Path? _surface;
   Path? _fill;
   TextPainter? _logo;
+  ArtStyle? _logoStyle;
 
   void _build() {
     final ramp = game.sim.ramp;
@@ -32,7 +34,7 @@ class RampComponent extends Component {
       ..lineTo(-deck, -2)
       ..close();
     _logo = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: 'U CHŘESTÝŠE',
         style: TextStyle(color: Palette.coping, fontSize: 0.42, fontWeight: FontWeight.w900, letterSpacing: 0.08),
       ),
@@ -42,21 +44,24 @@ class RampComponent extends Component {
 
   @override
   void render(Canvas canvas) {
-    if (_surface == null) _build();
-    canvas.drawPath(_fill!, Paint()..color = Palette.rampFill);
-    canvas.drawPath(
-      _surface!,
-      Paint()
-        ..color = Palette.rampEdge
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.07
-        ..strokeJoin = StrokeJoin.round,
-    );
-    final cop = Paint()..color = Palette.coping;
-    for (final side in [-1, 1]) {
-      final c = game.sim.ramp.coping(side);
-      canvas.drawCircle(Offset(c.x, c.y), 0.09, cop);
+    if (_surface == null || _logoStyle != Palette.style) {
+      _build();
+      _logoStyle = Palette.style;
     }
+    final cop = Paint()..color = Palette.coping;
+    drawStyled(canvas, ink: 0.08, [
+      (path: _fill!, paint: Paint()..color = Palette.rampFill),
+      (
+        path: _surface!,
+        paint: Paint()
+          ..color = Palette.rampEdge
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.07
+          ..strokeJoin = StrokeJoin.round,
+      ),
+      for (final side in [-1, 1])
+        (path: circlePath(Offset(game.sim.ramp.coping(side).x, game.sim.ramp.coping(side).y), 0.09), paint: cop),
+    ]);
     // Logo on the flat face; text needs y flipped back.
     final logo = _logo!;
     canvas.save();

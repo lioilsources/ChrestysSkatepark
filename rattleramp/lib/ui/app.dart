@@ -19,37 +19,56 @@ class Settings extends ChangeNotifier {
     _config = c;
     notifyListeners();
   }
+
+  ArtStyle get style => Palette.style;
+  set style(ArtStyle s) {
+    Palette.style = s;
+    notifyListeners();
+  }
 }
 
-class RattleApp extends StatelessWidget {
+class RattleApp extends StatefulWidget {
   final TrickBook book;
   const RattleApp({super.key, required this.book});
 
   @override
+  State<RattleApp> createState() => _RattleAppState();
+}
+
+class _RattleAppState extends State<RattleApp> {
+  final Settings settings = Settings();
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'RattleRamp',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Palette.night,
-        colorScheme: const ColorScheme.dark(primary: Palette.rampEdge, secondary: Palette.coping),
+    return ListenableBuilder(
+      listenable: settings,
+      builder: (context, _) => MaterialApp(
+        title: 'RattleRamp',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          brightness: Palette.style == ArtStyle.comic ? Brightness.light : Brightness.dark,
+          scaffoldBackgroundColor: Palette.night,
+          colorScheme: Palette.style == ArtStyle.comic
+              ? ColorScheme.light(primary: Palette.rampEdge, secondary: Palette.coping)
+              : ColorScheme.dark(primary: Palette.rampEdge, secondary: Palette.coping),
+        ),
+        home: _Shell(book: widget.book, settings: settings),
       ),
-      home: _Shell(book: book),
     );
   }
 }
 
 class _Shell extends StatefulWidget {
   final TrickBook book;
-  const _Shell({required this.book});
+  final Settings settings;
+  const _Shell({required this.book, required this.settings});
 
   @override
   State<_Shell> createState() => _ShellState();
 }
 
 class _ShellState extends State<_Shell> {
-  final Settings settings = Settings();
+  Settings get settings => widget.settings;
   AppScreen screen = AppScreen.attract;
   bool proMode = false;
   Timer? _idle;
@@ -86,9 +105,11 @@ class _ShellState extends State<_Shell> {
       onPointerDown: (_) => _kickIdle(),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 180),
+        // Keys carry the style so a switch remounts the screen and nothing
+        // keeps painting with the old palette.
         child: switch (screen) {
           AppScreen.attract => AttractScreen(
-            key: const ValueKey('attract'),
+            key: ValueKey('attract-${settings.style}'),
             book: widget.book,
             settings: settings,
             daily: daily,
@@ -96,7 +117,7 @@ class _ShellState extends State<_Shell> {
             onTrickBook: () => _go(AppScreen.trickBook),
           ),
           AppScreen.ride => RideScreen(
-            key: const ValueKey('ride'),
+            key: ValueKey('ride-${settings.style}'),
             book: widget.book,
             settings: settings,
             proMode: proMode,
@@ -104,7 +125,7 @@ class _ShellState extends State<_Shell> {
             onDone: () => _go(AppScreen.attract),
           ),
           AppScreen.trickBook => TrickBookScreen(
-            key: const ValueKey('book'),
+            key: ValueKey('book-${settings.style}'),
             book: widget.book,
             onClose: () => _go(AppScreen.attract),
           ),

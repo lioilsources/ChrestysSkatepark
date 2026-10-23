@@ -73,8 +73,8 @@ class _RideScreenState extends State<RideScreen> {
     super.dispose();
   }
 
-  void _show(String big, {String? small, Color color = Palette.skater}) {
-    popup = _Popup(big, small, color, ++_popupId);
+  void _show(String big, {String? small, Color? color}) {
+    popup = _Popup(big, small, color ?? Palette.skater, ++_popupId);
   }
 
   void _onEvent(RideEvent e) {

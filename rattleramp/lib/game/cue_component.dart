@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import '../core/ride_sim.dart';
 import '../ui/theme.dart';
 import 'rattle_game.dart';
+import 'style_paint.dart';
 
 /// Rhythm-game cue: a ring that shrinks onto the coping and meets the
 /// target ring exactly when the skater leaves the edge. Readable without
@@ -36,21 +37,21 @@ class CueComponent extends Component {
         ? Palette.good
         : Palette.skater;
 
-    canvas.drawCircle(
-      at,
-      _target,
-      Paint()
-        ..color = Palette.coping.withValues(alpha: 0.9)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.06,
-    );
-    canvas.drawCircle(
-      at,
-      _target + _spread * k,
-      Paint()
-        ..color = color.withValues(alpha: fade)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.08 + 0.06 * (1 - k),
-    );
+    drawStyled(canvas, [
+      (
+        path: circlePath(at, _target),
+        paint: Paint()
+          ..color = Palette.coping.withValues(alpha: 0.9)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.06,
+      ),
+      (
+        path: circlePath(at, _target + _spread * k),
+        paint: Paint()
+          ..color = color.withValues(alpha: fade)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.08 + 0.06 * (1 - k),
+      ),
+    ]);
   }
 }

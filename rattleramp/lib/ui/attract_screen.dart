@@ -94,6 +94,16 @@ class _AttractScreenState extends State<AttractScreen> with SingleTickerProvider
                   ],
                 ),
               ),
+              Positioned(
+                top: 24,
+                right: 24,
+                child: _BigButton(
+                  label: 'STYL: ${widget.settings.style.label}',
+                  color: Palette.good,
+                  small: true,
+                  onTap: () => widget.settings.style = widget.settings.style.next,
+                ),
+              ),
               // Hidden: 3 s long press in the top-left corner (PIN comes in M4).
               Positioned(
                 left: 0,
@@ -114,20 +124,26 @@ class _BigButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
-  const _BigButton({required this.label, required this.color, required this.onTap});
+  final bool small;
+  const _BigButton({required this.label, required this.color, required this.onTap, this.small = false});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+        padding: small
+            ? const EdgeInsets.symmetric(horizontal: 18, vertical: 10)
+            : const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
         decoration: BoxDecoration(
           border: Border.all(color: color, width: 3),
           borderRadius: BorderRadius.circular(16),
           color: Palette.night.withValues(alpha: 0.7),
         ),
-        child: Text(label, style: hudStyle.copyWith(fontSize: 22, color: color)),
+        child: Text(
+          label,
+          style: hudStyle.copyWith(fontSize: small ? 16 : 22, color: color),
+        ),
       ),
     );
   }

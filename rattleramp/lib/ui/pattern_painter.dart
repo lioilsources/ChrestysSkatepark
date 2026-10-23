@@ -9,10 +9,11 @@ import 'theme.dart';
 class PatternPainter extends CustomPainter {
   final List<int> path;
   final double? progress;
-  final Color color;
+  final Color? _color;
+  Color get color => _color ?? Palette.rampEdge;
   final double strokeScale;
 
-  const PatternPainter(this.path, {this.progress, this.color = Palette.rampEdge, this.strokeScale = 1});
+  const PatternPainter(this.path, {this.progress, Color? color, this.strokeScale = 1}) : _color = color;
 
   static Offset nodeCenter(int n, Size size) {
     final cw = size.width / 3;

@@ -7,6 +7,7 @@ import '../core/ride_sim.dart';
 import '../core/trick_defs.dart';
 import '../ui/theme.dart';
 import 'rattle_game.dart';
+import 'style_paint.dart';
 
 /// Skater root: placed at the board contact point and rotated to the pose
 /// angle. Board and body are separate layers so spin (horizontal squash of
@@ -170,10 +171,6 @@ class _BoardLayer extends Component {
   final SkaterComponent sk;
   _BoardLayer(this.sk);
 
-  static final _deck = Paint()..color = Palette.board;
-  static final _grip = Paint()..color = Palette.grip;
-  static final _wheel = Paint()..color = Palette.skater;
-
   @override
   void render(Canvas canvas) {
     final p = sk.pose;
@@ -207,21 +204,29 @@ class _BoardLayer extends Component {
     final cr = math.cos(a), sr = math.sin(a);
     canvas.translate(0, 0.05 * sr);
     final half = 0.03 + 0.07 * sr.abs();
-    final deck = RRect.fromRectAndRadius(Rect.fromLTRB(-0.42, -half, 0.42, half), Radius.circular(half));
-    canvas.drawRRect(deck, _deck);
-    if (sr.abs() > 0.15) {
+    final deck = Paint()..color = Palette.board;
+    final wheel = Paint()..color = Palette.skater;
+    final wy = -(half + 0.035) * cr.sign;
+    drawStyled(canvas, ink: 0.04, [
+      // Wheels first so the deck overlaps the trucks.
+      if (cr.abs() > 0.25) ...[
+        (path: circlePath(Offset(-0.27, wy), 0.04), paint: wheel),
+        (path: circlePath(Offset(0.27, wy), 0.04), paint: wheel),
+      ],
+      (
+        path: Path()..addRRect(RRect.fromRectAndRadius(Rect.fromLTRB(-0.42, -half, 0.42, half), Radius.circular(half))),
+        paint: deck,
+      ),
       // Face towards the viewer: grip on top half of the turn, graphic below.
-      final face = RRect.fromRectAndRadius(
-        Rect.fromLTRB(-0.38, -half * 0.7, 0.38, half * 0.7),
-        Radius.circular(half * 0.7),
-      );
-      canvas.drawRRect(face, sr > 0 ? _grip : _deck);
-    }
-    if (cr.abs() > 0.25) {
-      final wy = -(half + 0.035) * cr.sign;
-      canvas.drawCircle(Offset(-0.27, wy), 0.04, _wheel);
-      canvas.drawCircle(Offset(0.27, wy), 0.04, _wheel);
-    }
+      if (sr.abs() > 0.15)
+        (
+          path: Path()
+            ..addRRect(
+              RRect.fromRectAndRadius(Rect.fromLTRB(-0.38, -half * 0.7, 0.38, half * 0.7), Radius.circular(half * 0.7)),
+            ),
+          paint: sr > 0 ? (Paint()..color = Palette.grip) : deck,
+        ),
+    ]);
     canvas.restore();
   }
 }
@@ -229,13 +234,6 @@ class _BoardLayer extends Component {
 class _BodyLayer extends Component {
   final SkaterComponent sk;
   _BodyLayer(this.sk);
-
-  static final _stroke = Paint()
-    ..color = Palette.skater
-    ..strokeCap = StrokeCap.round
-    ..strokeJoin = StrokeJoin.round
-    ..style = PaintingStyle.stroke;
-  static final _fill = Paint()..color = Palette.skater;
 
   @override
   void render(Canvas canvas) {
@@ -248,25 +246,35 @@ class _BodyLayer extends Component {
       canvas.rotate(-1.45 * p.bail);
     }
 
-    void limb(Offset a, Offset b, double l1, double l2, Offset bend, double width) {
+    Paint stroke(double width) => Paint()
+      ..color = Palette.skater
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+
+    StyledShape limb(Offset a, Offset b, double l1, double l2, Offset bend, double width) {
       final j = _joint(a, b, l1, l2, bend);
-      canvas.drawPath(
-        Path()
+      return (
+        path: Path()
           ..moveTo(a.dx, a.dy)
           ..lineTo(j.dx, j.dy)
           ..lineTo(b.dx, b.dy),
-        _stroke..strokeWidth = width,
+        paint: stroke(width),
       );
     }
 
-    for (final foot in r.feet) {
-      limb(r.hip, foot, _thigh, _shin, const Offset(1, 0), 0.09);
-    }
-    canvas.drawLine(r.hip, r.shoulder, _stroke..strokeWidth = 0.09);
-    canvas.drawCircle(r.shoulder + const Offset(0.03, 0.2), 0.13, _fill);
-    for (final hand in r.hands) {
-      limb(r.shoulder, hand, _upperArm, _forearm, const Offset(0, -1), 0.07);
-    }
+    drawStyled(canvas, [
+      for (final foot in r.feet) limb(r.hip, foot, _thigh, _shin, const Offset(1, 0), 0.09),
+      (
+        path: Path()
+          ..moveTo(r.hip.dx, r.hip.dy)
+          ..lineTo(r.shoulder.dx, r.shoulder.dy),
+        paint: stroke(0.09),
+      ),
+      (path: circlePath(r.shoulder + const Offset(0.03, 0.2), 0.13), paint: Paint()..color = Palette.skater),
+      for (final hand in r.hands) limb(r.shoulder, hand, _upperArm, _forearm, const Offset(0, -1), 0.07),
+    ]);
     canvas.restore();
   }
 }
