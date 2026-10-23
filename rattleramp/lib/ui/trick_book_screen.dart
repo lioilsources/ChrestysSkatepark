@@ -62,21 +62,36 @@ class _TrickBookScreenState extends State<TrickBookScreen> with SingleTickerProv
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title and tabs scroll on narrow screens; the close button keeps
+              // its own slot so it never ends up outside the hit area.
               Row(
                 children: [
-                  Text('TRICK BOOK', style: hudStyle.copyWith(fontSize: 32, color: Palette.rampEdge)),
-                  const SizedBox(width: 24),
-                  for (var i = 0; i < tabs.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(tabs[i], style: hudStyle.copyWith(fontSize: 16)),
-                        selected: tab == i,
-                        onSelected: (_) => setState(() => tab = i),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          Text('TRICK BOOK', style: hudStyle.copyWith(fontSize: 32, color: Palette.rampEdge)),
+                          const SizedBox(width: 24),
+                          for (var i = 0; i < tabs.length; i++)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(tabs[i], style: hudStyle.copyWith(fontSize: 16)),
+                                selected: tab == i,
+                                onSelected: (_) => setState(() => tab = i),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  const Spacer(),
-                  IconButton(iconSize: 40, onPressed: widget.onClose, icon: const Icon(Icons.close)),
+                  ),
+                  IconButton(
+                    iconSize: 40,
+                    padding: const EdgeInsets.all(12),
+                    onPressed: widget.onClose,
+                    icon: const Icon(Icons.close),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
