@@ -95,7 +95,7 @@ class _AvatarScreenState extends State<AvatarScreen> with SingleTickerProviderSt
                   children: [
                     Expanded(
                       child: GridView.count(
-                        crossAxisCount: 4,
+                        crossAxisCount: 5,
                         mainAxisSpacing: 8,
                         crossAxisSpacing: 8,
                         children: [

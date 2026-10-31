@@ -24,7 +24,7 @@ void main() {
       SkaterPose(x: 0, y: 0, angle: 0, facing: 1, crouch: 0.5, roll: 0.62, flip: 1),
     ];
     const cell = 240.0;
-    for (final style in [ArtStyle.neon, ArtStyle.comic]) {
+    for (final style in [ArtStyle.neon, ArtStyle.comic, ArtStyle.halloween]) {
       Palette.style = style;
       final rec = ui.PictureRecorder();
       final c = ui.Canvas(rec);

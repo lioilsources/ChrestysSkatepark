@@ -60,7 +60,8 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
 - Skater = separate board/body layers. Spin = horizontal squash of the rig; flip = board roll/shove/tumble from
   the flip's `look` in tricks.json; grab = hand + spot + body style (`GrabStyle`) + tilt from the grab's `look`.
   `SNAP_DIR=/tmp/x flutter test test/gallery_test.dart` renders every grab and flip upright for a visual check.
-- Art styles (`ArtStyle` in `lib/ui/theme.dart`): neon, comic, pixel. `Palette.*` are getters on the active
+- Art styles (`ArtStyle` in `lib/ui/theme.dart`): neon, comic, pixel, halloween (default 24 Oct – 1 Nov via
+  `seasonalStyle`, with the pumpkin avatar preselected). `Palette.*` are getters on the active
   style — never cache a palette colour in a `static final`/`const`. Game shapes go through `drawStyled`
   (`lib/game/style_paint.dart`) which adds comic ink outlines or neon glow; pixel renders the whole game layer at
   1/n resolution. Switch: STYL button on attract, or the tuning panel. Screen keys carry the style, so a switch
@@ -68,12 +69,13 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
 - App icon (rattlesnake on a skateboard) is drawn in code: `ICON_OUT=assets/icon flutter test
   test/icon_test.dart && dart run flutter_launcher_icons`. The tool rewrites
   `ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS` in the iOS pbxproj — revert that hunk.
-- Avatars (M2): 8 presets in `lib/core/avatar.dart` (Chřestýš mascot first, with a rattle tail), 6 outfits, 6 deck
+- Avatars (M2): 10 presets in `lib/core/avatar.dart` (Chřestýš mascot first, with a rattle tail), 8 outfits, 7 deck
   graphics. Body/limbs are procedural (outfit colours) on the same IK rig; the head is a sprite, stored facing LEFT.
   Picker sits between attract and ride; 5 s countdown starts the ride with the current pick, each tap restarts it.
 - Sprites: `tool/spritegen.py` — FLUX.1-schnell NIM on the Spark (localhost only:
   `ssh -f -N -L 18030:localhost:8030 spark-99bb`) → BiRefNet cut-out in ComfyUI (`spark-99bb:8188`, one job at a
   time, check `/queue`, ComfyUI is only up in its daytime window) → `assets/sprites/{heads,decks}/`. Check with
-  `SNAP_DIR=/tmp/x flutter test test/avatar_sheet_test.dart`.
+  `SNAP_DIR=/tmp/x flutter test test/avatar_sheet_test.dart`. `SPARK_HOST=<ip>` overrides the host;
+  `SPRITEGEN_KEEP_MODELS=1` skips `/free` when another session shares ComfyUI. Get ComfyUI/Flux via `sparkctl lease`.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
 - `dart format -l 120`.

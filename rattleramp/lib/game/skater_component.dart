@@ -318,6 +318,16 @@ void _paintBody(Canvas canvas, SkaterPose p, _Rig r, Avatar avatar, Image? head)
     (path: line(r.hip, r.shoulder), paint: stroke(Color(outfit.shirt), 0.24)),
   ]);
 
+  if (avatar.preset.ribs) {
+    final along = r.shoulder - r.hip;
+    final across = Offset(-along.dy, along.dx) / along.distance * 0.1;
+    final rib = stroke(const Color(0xFF2A2A2A), 0.022);
+    for (final t in const [0.45, 0.6, 0.75, 0.9]) {
+      final c = r.hip + along * t;
+      canvas.drawLine(c - across, c + across, rib);
+    }
+  }
+
   // Head: sprite (stored facing left, so mirrored to face +x), leaning
   // with the torso. Falls back to a plain circle.
   final lean = math.atan2(r.shoulder.dx - r.hip.dx, r.shoulder.dy - r.hip.dy);

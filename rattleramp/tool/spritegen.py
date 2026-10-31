@@ -7,12 +7,12 @@
 
 ComfyUI rules on the Spark: one job at a time, check /queue first, POST /free when done.
 """
-import base64, io, json, sys, time, urllib.request, uuid
+import base64, io, json, os, sys, time, urllib.request, uuid
 from pathlib import Path
 
 from PIL import Image
 
-HOST = "spark-99bb"
+HOST = os.environ.get("SPARK_HOST", "spark-99bb")
 # The NIM listens on the Spark's localhost only: ssh -f -N -L 18030:localhost:8030 spark-99bb
 NIM = "http://localhost:18030/v1/infer"
 COMFY = f"http://{HOST}:8188"
@@ -33,6 +33,10 @@ HEADS = {
     "oldschool": "a bearded old school skater man wearing a backwards red baseball cap, laughing",
     "kid": "a small freckled kid with ginger hair wearing an orange skate helmet, excited open mouth",
     "afro": "a brown-skinned skater girl with two big afro puffs and big round sunglasses, cheeky smile",
+    "pumpkin": "a carved orange halloween jack-o-lantern pumpkin head with a green stem, triangle eyes and a jagged grin "
+               "glowing warm yellow from inside, cheeky skater mascot",
+    "skeleton": "a grinning cartoon human skull, bone white with big black eye sockets and a toothy smile, cheeky skater "
+                "mascot, wearing a backwards black baseball cap",
     "chrestys": "a cool cartoon rattlesnake head with green scales and yellow eyes wearing a backwards black baseball cap, "
                 "forked red tongue sticking out, smirking mascot",
 }
@@ -42,6 +46,7 @@ DECKS = {
     "checker": "black and white checkerboard with a pink lightning bolt",
     "galaxy": "deep blue space galaxy with stars and a ringed planet",
     "waves": "japanese style big blue ocean waves with white foam",
+    "cobweb": "white spider webs and small orange jack-o-lanterns on deep purple",
     "pizza": "pepperoni pizza slices scattered on bright red",
 }
 
@@ -124,6 +129,9 @@ def cut(out, picks):
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
         img.save(dest / f"{name}.png")
         print(f"heads/{name}.png", flush=True)
+    # Someone else's session may share ComfyUI: don't unload their models.
+    if os.environ.get("SPRITEGEN_KEEP_MODELS"):
+        return
     # /free answers with an empty body.
     urllib.request.urlopen(urllib.request.Request(
         f"{COMFY}/free", json.dumps({"unload_models": True, "free_memory": True}).encode(),

@@ -113,6 +113,58 @@ class BackdropComponent extends Component {
         for (var i = 0; i < 40; i++) {
           canvas.drawRect(Rect.fromLTWH(rng.nextDouble() * size.x, rng.nextDouble() * size.y * 0.3, 4, 4), star);
         }
+      case ArtStyle.halloween:
+        _paintHalloween(canvas, size.x, size.y);
     }
+  }
+}
+
+/// Harvest moon, bats and a graveyard skyline. Seeded, so it never flickers.
+void _paintHalloween(Canvas canvas, double w, double h) {
+  final moon = Offset(w * 0.8, h * 0.22);
+  final r = h * 0.13;
+  canvas.drawCircle(
+    moon,
+    r * 1.5,
+    Paint()
+      ..color = const Color(0x44FF9A3C)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.6),
+  );
+  canvas.drawCircle(moon, r, Paint()..color = const Color(0xFFFFB347));
+  final crater = Paint()..color = const Color(0x33B5521B);
+  canvas.drawCircle(moon + Offset(-r * 0.3, -r * 0.2), r * 0.2, crater);
+  canvas.drawCircle(moon + Offset(r * 0.35, r * 0.25), r * 0.14, crater);
+
+  final shade = Paint()..color = const Color(0xFF0A0512);
+  final rng = math.Random(31);
+  for (var i = 0; i < 9; i++) {
+    final c = Offset(w * (0.08 + 0.84 * rng.nextDouble()), h * (0.06 + 0.3 * rng.nextDouble()));
+    final s = h * (0.012 + 0.016 * rng.nextDouble());
+    canvas.drawPath(
+      Path()
+        ..moveTo(c.dx, c.dy + s * 0.5)
+        ..quadraticBezierTo(c.dx - s, c.dy - s, c.dx - s * 2.6, c.dy - s * 0.4)
+        ..quadraticBezierTo(c.dx - s * 1.4, c.dy, c.dx, c.dy - s * 0.4)
+        ..quadraticBezierTo(c.dx + s * 1.4, c.dy, c.dx + s * 2.6, c.dy - s * 0.4)
+        ..quadraticBezierTo(c.dx + s, c.dy - s, c.dx, c.dy + s * 0.5)
+        ..close(),
+      shade,
+    );
+  }
+
+  // Tombstones sit on a low hill along the bottom edge.
+  final ground = h * 0.9;
+  canvas.drawRect(Rect.fromLTWH(0, ground, w, h - ground), shade);
+  for (var i = 0; i < 12; i++) {
+    final x = w * (i + 0.5) / 12 + (rng.nextDouble() - 0.5) * w * 0.04;
+    final sw = h * (0.03 + 0.02 * rng.nextDouble()), sh = sw * (1.4 + 0.6 * rng.nextDouble());
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromLTWH(x - sw / 2, ground - sh, sw, sh + 2),
+        topLeft: Radius.circular(sw / 2),
+        topRight: Radius.circular(sw / 2),
+      ),
+      shade,
+    );
   }
 }

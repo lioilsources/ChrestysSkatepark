@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// The three switchable looks. Same game, different paint: colours, outline
+/// The switchable looks. Same game, different paint: colours, outline
 /// ink, glow and a pixelation factor for the whole game layer.
 enum ArtStyle {
   neon('NEON'),
   comic('KOMIKS'),
-  pixel('PIXEL');
+  pixel('PIXEL'),
+  halloween('HALLOWEEN');
 
   final String label;
   const ArtStyle(this.label);
@@ -134,7 +135,32 @@ final Map<ArtStyle, StyleSpec> styleSpecs = {
       shadows: [Shadow(color: Color(0xFF000000), offset: Offset(3, 3))],
     ),
   ),
+  ArtStyle.halloween: const StyleSpec(
+    night: Color(0xFF140A24),
+    rampFill: Color(0xFF2A1740),
+    rampEdge: Color(0xFFFF7A18),
+    coping: Color(0xFFB6FF3C),
+    skater: Color(0xFFF6EBD8),
+    board: Color(0xFFFF7A18),
+    grip: Color(0xFF1A1020),
+    perfect: Color(0xFFB6FF3C),
+    good: Color(0xFFFFC93C),
+    late: Color(0xFFFF7A18),
+    miss: Color(0xFFE5243B),
+    dim: Color(0x99F6EBD8),
+    glow: true,
+    hud: TextStyle(
+      color: Color(0xFFFFE9C9),
+      fontWeight: FontWeight.w900,
+      letterSpacing: 1.2,
+      shadows: [Shadow(color: Color(0xFFFF7A18), blurRadius: 8)],
+    ),
+  ),
 };
+
+/// The bar's kiosk opens in the Halloween look around the holiday.
+ArtStyle seasonalStyle(DateTime now) =>
+    (now.month == 10 && now.day >= 24) || (now.month == 11 && now.day == 1) ? ArtStyle.halloween : ArtStyle.neon;
 
 /// Colours of the active [ArtStyle]. Read at paint time, so switching the
 /// style restyles everything on the next frame / rebuild.

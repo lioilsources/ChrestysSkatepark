@@ -24,7 +24,7 @@ class Settings extends ChangeNotifier {
   }
 
   /// Last picked avatar; the picker opens on it so regulars just tap JEĎ.
-  Avatar avatar = Avatar.initial;
+  Avatar avatar = Palette.style == ArtStyle.halloween ? Avatar.pumpkin : Avatar.initial;
 
   ArtStyle get style => Palette.style;
   set style(ArtStyle s) {

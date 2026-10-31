@@ -6,7 +6,7 @@ import 'package:rattleramp/ui/theme.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('STYL button cycles neon → comic → pixel → neon', (tester) async {
+  testWidgets('STYL button cycles neon → comic → pixel → halloween → neon', (tester) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -14,7 +14,7 @@ void main() {
 
     await tester.pumpWidget(RattleApp(book: book));
     await tester.pump(const Duration(milliseconds: 300));
-    for (final expected in [ArtStyle.comic, ArtStyle.pixel, ArtStyle.neon]) {
+    for (final expected in [ArtStyle.comic, ArtStyle.pixel, ArtStyle.halloween, ArtStyle.neon]) {
       await tester.tap(find.textContaining('STYL:'));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -22,5 +22,12 @@ void main() {
       expect(find.text('STYL: ${expected.label}'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
+  });
+
+  test('Halloween look runs for the week around the holiday', () {
+    expect(seasonalStyle(DateTime(2026, 10, 31)), ArtStyle.halloween);
+    expect(seasonalStyle(DateTime(2026, 11, 1)), ArtStyle.halloween);
+    expect(seasonalStyle(DateTime(2026, 10, 23)), ArtStyle.neon);
+    expect(seasonalStyle(DateTime(2026, 11, 2)), ArtStyle.neon);
   });
 }

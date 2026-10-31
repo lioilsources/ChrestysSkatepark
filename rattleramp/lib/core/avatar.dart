@@ -17,6 +17,9 @@ class AvatarPreset {
   /// The bar's mascot: gets a rattle tail.
   final bool mascot;
 
+  /// Draws ribs over the torso.
+  final bool ribs;
+
   const AvatarPreset({
     required this.id,
     required this.name,
@@ -24,6 +27,7 @@ class AvatarPreset {
     required this.outfit,
     required this.deck,
     this.mascot = false,
+    this.ribs = false,
   });
 }
 
@@ -36,6 +40,8 @@ class Outfit {
 
 const List<AvatarPreset> presets = [
   AvatarPreset(id: 'chrestys', name: 'Chřestýš', skin: 0xFF5CB85C, outfit: 5, deck: 'snake', mascot: true),
+  AvatarPreset(id: 'pumpkin', name: 'Dýňák', skin: 0xFFF6EBD8, outfit: 6, deck: 'cobweb'),
+  AvatarPreset(id: 'skeleton', name: 'Kostlivec', skin: 0xFFF6EBD8, outfit: 7, deck: 'cobweb', ribs: true),
   AvatarPreset(id: 'punk', name: 'Punk', skin: 0xFFF6D3B3, outfit: 0, deck: 'checker'),
   AvatarPreset(id: 'beanie', name: 'Kulich', skin: 0xFFF9D9BE, outfit: 1, deck: 'waves'),
   AvatarPreset(id: 'dreads', name: 'Dready', skin: 0xFF6B3E26, outfit: 2, deck: 'flames'),
@@ -52,9 +58,11 @@ const List<Outfit> outfits = [
   Outfit(0xFF8ECAE6, 0xFFF4A3C0, 0xFFFFFFFF), // sky blue, pink
   Outfit(0xFF2A9D8F, 0xFF6D4C41, 0xFFF4A261), // teal, brown
   Outfit(0xFF111111, 0xFF2E7D32, 0xFFFFD600), // mascot: black tee, green
+  Outfit(0xFF8A4FD8, 0xFF3FA34D, 0xFFFF7A18), // Halloween: violet, slime green, orange
+  Outfit(0xFFEFE6D2, 0xFFD9CDB4, 0xFF2A2A2A), // skeleton: bone all over
 ];
 
-const List<String> decks = ['snake', 'flames', 'checker', 'galaxy', 'waves', 'pizza'];
+const List<String> decks = ['snake', 'flames', 'checker', 'galaxy', 'waves', 'pizza', 'cobweb'];
 
 class Avatar {
   final AvatarPreset preset;
@@ -71,4 +79,7 @@ class Avatar {
       Avatar(preset ?? this.preset, outfitIndex ?? this.outfitIndex, deck ?? this.deck);
 
   static Avatar get initial => Avatar.of(presets.first);
+
+  /// The pumpkin head, offered first while the Halloween look is on.
+  static Avatar get pumpkin => Avatar.of(presets.firstWhere((p) => p.id == 'pumpkin'));
 }
