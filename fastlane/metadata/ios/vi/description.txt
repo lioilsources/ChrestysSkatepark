@@ -1,0 +1,10 @@
+RattleRamp là game trượt ván 2D trên U-ramp. Vẽ trick bằng một ngón tay trên lưới 3×3 và thả đúng lúc người trượt chạm mép ramp.
+
+• Quanh viền = spin, qua tâm = grab, hình thoi = flip
+• Nối trick bằng một nét thành combo – McTwist, Rodeo, 540 Japan và hơn nữa
+• Trick book với hình mẫu động cho mỗi grab, flip và spin
+• Trick của ngày được nhân đôi điểm, chế độ Pro ×1,5 không gợi ý
+• 8 người trượt, trang phục và hình ván, có cả linh vật rắn chuông
+• Ba phong cách: neon, truyện tranh và pixel
+
+Làm cho máy tính bảng ở quán bar U Chřestýše cạnh công viên trượt ván – một lượt nhanh trong lúc chờ rót bia.

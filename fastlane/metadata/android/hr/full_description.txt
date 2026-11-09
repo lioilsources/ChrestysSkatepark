@@ -1,0 +1,10 @@
+RattleRamp je 2D skate igra na U-rampi. Trikove crtaš jednim prstom u mrežu 3×3 i puštaš točno kad vozač dotakne rub rampe.
+
+• Po rubu = spin, kroz sredinu = grab, romb = flip
+• Spoji trikove jednim potezom u combo – McTwist, Rodeo, 540 Japan i drugi
+• Trick book s animiranim uzorkom za svaki grab, flip i spin
+• Trik dana nosi dvostruke bodove, Pro način ×1,5 bez savjeta
+• 8 vozača, odjeće i grafike daski, uključujući maskotu zvečarku
+• Tri stila: neon, strip i piksel
+
+Nastala za tablet u baru U Chřestýše pokraj skateparka – brza vožnja dok ti toče pivo.

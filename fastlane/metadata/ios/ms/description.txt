@@ -1,0 +1,10 @@
+RattleRamp ialah permainan skate 2D di U-ramp. Lukis helah dengan satu jari pada grid 3×3 dan lepaskan tepat ketika pemain menyentuh coping.
+
+• Sepanjang tepi = spin, melalui tengah = grab, rombus = flip
+• Rangkaikan helah dalam satu lakaran menjadi combo – McTwist, Rodeo, 540 Japan dan lagi
+• Trick book dengan corak animasi untuk setiap grab, flip dan spin
+• Helah hari ini bernilai dua kali ganda, mod Pro ×1.5 tanpa petunjuk
+• 8 pemain, pakaian dan grafik papan, termasuk maskot ular orok
+• Tiga gaya: neon, komik dan piksel
+
+Dibuat untuk tablet di bar U Chřestýše di sebelah taman skate – satu pusingan pantas sementara bir anda dituang.

@@ -6,11 +6,39 @@ import '../core/avatar.dart';
 import '../core/ride_config.dart';
 import '../core/trick_defs.dart';
 import '../game/avatar_sprites.dart';
+import '../l10n/app_localizations.dart';
 import 'attract_screen.dart';
 import 'avatar_screen.dart';
 import 'ride_screen.dart';
 import 'theme.dart';
 import 'trick_book_screen.dart';
+
+/// Scripts whose glyphs join or stack; HUD letter spacing would tear them apart.
+const tightScriptLanguages = {'ar', 'he', 'ur', 'hi', 'mr', 'bn', 'gu', 'pa', 'or', 'ta', 'te', 'kn', 'ml', 'th'};
+
+/// Device locales often carry only a region for Chinese (zh_TW, zh_HK);
+/// map those to Traditional. Otherwise exact match, then language only, then English.
+Locale? resolveLocale(List<Locale>? preferred, Iterable<Locale> supported) {
+  for (final raw in preferred ?? const <Locale>[]) {
+    // Legacy codes some Android versions still report.
+    final code = switch (raw.languageCode) {
+      'no' => 'nb',
+      'iw' => 'he',
+      'in' => 'id',
+      final c => c,
+    };
+    final p = Locale.fromSubtags(languageCode: code, scriptCode: raw.scriptCode, countryCode: raw.countryCode);
+    if (p.languageCode == 'zh') {
+      final hant = p.scriptCode == 'Hant' || (p.scriptCode == null && const {'TW', 'HK', 'MO'}.contains(p.countryCode));
+      return Locale.fromSubtags(languageCode: 'zh', scriptCode: hant ? 'Hant' : 'Hans');
+    }
+    final exact = supported.where((s) => s.languageCode == p.languageCode && s.countryCode == p.countryCode);
+    if (exact.isNotEmpty) return exact.first;
+    final lang = supported.where((s) => s.languageCode == p.languageCode && s.countryCode == null);
+    if (lang.isNotEmpty) return lang.first;
+  }
+  return const Locale('en');
+}
 
 enum AppScreen { attract, avatar, ride, trickBook }
 
@@ -36,7 +64,10 @@ class Settings extends ChangeNotifier {
 class RattleApp extends StatefulWidget {
   final TrickBook book;
   final AvatarSprites sprites;
-  const RattleApp({super.key, required this.book, this.sprites = AvatarSprites.empty});
+
+  /// Forces a UI language; null follows the device.
+  final Locale? locale;
+  const RattleApp({super.key, required this.book, this.sprites = AvatarSprites.empty, this.locale});
 
   @override
   State<RattleApp> createState() => _RattleAppState();
@@ -52,6 +83,14 @@ class _RattleAppState extends State<RattleApp> {
       builder: (context, _) => MaterialApp(
         title: 'RattleRamp',
         debugShowCheckedModeBanner: false,
+        locale: widget.locale,
+        localizationsDelegates: L10n.localizationsDelegates,
+        supportedLocales: L10n.supportedLocales,
+        localeListResolutionCallback: resolveLocale,
+        builder: (context, child) {
+          Palette.tightLetters = tightScriptLanguages.contains(Localizations.localeOf(context).languageCode);
+          return child!;
+        },
         theme: ThemeData(
           brightness: Palette.style == ArtStyle.comic ? Brightness.light : Brightness.dark,
           scaffoldBackgroundColor: Palette.night,

@@ -1,0 +1,10 @@
+A RattleRamp egy 2D gördeszkás játék U-rámpán. A trükköket egy ujjal rajzolod egy 3×3-as rácsra, és pont akkor engeded el, amikor a deszkás eléri a peremet.
+
+• A szélén körbe = spin, középen át = grab, rombusz = flip
+• Fűzd kombókká a trükköket egy húzással – McTwist, Rodeo, 540 Japan és mások
+• Trick book animált mintával minden grabhez, fliphez és spinhez
+• A nap trükkje dupla pontot ér, Pro mód ×1,5 tippek nélkül
+• 8 deszkás, ruhák és deszkagrafikák, köztük a csörgőkígyó kabala
+• Három stílus: neon, képregény és pixel
+
+A skatepark melletti U Chřestýše bár tabletjére készült – egy gyors kör, amíg csapolják a söröd.

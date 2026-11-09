@@ -12,14 +12,15 @@ void main() {
     addTearDown(tester.view.reset);
     addTearDown(() => Palette.style = ArtStyle.neon);
 
-    await tester.pumpWidget(RattleApp(book: book));
+    await tester.pumpWidget(RattleApp(book: book, locale: const Locale('cs')));
     await tester.pump(const Duration(milliseconds: 300));
+    const labels = {ArtStyle.comic: 'KOMIKS', ArtStyle.pixel: 'PIXEL', ArtStyle.neon: 'NEON'};
     for (final expected in [ArtStyle.comic, ArtStyle.pixel, ArtStyle.neon]) {
       await tester.tap(find.textContaining('STYL:'));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
       expect(Palette.style, expected);
-      expect(find.text('STYL: ${expected.label}'), findsOneWidget);
+      expect(find.text('STYL: ${labels[expected]}'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });

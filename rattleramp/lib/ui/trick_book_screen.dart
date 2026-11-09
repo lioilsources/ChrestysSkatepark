@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/trick_defs.dart';
 import '../core/trick_parser.dart';
 import 'pattern_painter.dart';
+import '../l10n/app_localizations.dart';
 import 'theme.dart';
 
 /// Every token and named combo with an animated finger drawing its pattern.
@@ -32,12 +33,12 @@ class _TrickBookScreenState extends State<TrickBookScreen> with SingleTickerProv
   _Entry _token(TrickToken t, {String? note}) =>
       (name: t.name, path: t.path, points: t.base, grade: trickGrade(t.moves), note: note);
 
-  List<_Entry> get entries {
+  List<_Entry> entries(L10n l) {
     final b = widget.book;
     return switch (tab) {
       0 => [for (final t in b.grabs) _token(t)],
       1 => [for (final t in b.flips) _token(t)],
-      2 => [for (final t in b.spins) _token(t, note: 'začni kdekoli na okraji')],
+      2 => [for (final t in b.spins) _token(t, note: l.spinNote)],
       _ => [
         for (final c in b.combos)
           if (b.comboPath(c) case final p?)
@@ -54,7 +55,8 @@ class _TrickBookScreenState extends State<TrickBookScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    const tabs = ['GRABY', 'FLIPY', 'SPINY', 'KOMBA'];
+    final l = L10n.of(context);
+    final tabs = [l.tabGrabs, l.tabFlips, l.tabSpins, l.tabCombos];
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -75,7 +77,7 @@ class _TrickBookScreenState extends State<TrickBookScreen> with SingleTickerProv
                           const SizedBox(width: 24),
                           for (var i = 0; i < tabs.length; i++)
                             Padding(
-                              padding: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsetsDirectional.only(end: 8),
                               child: ChoiceChip(
                                 label: Text(tabs[i], style: hudStyle.copyWith(fontSize: 16)),
                                 selected: tab == i,
@@ -96,8 +98,7 @@ class _TrickBookScreenState extends State<TrickBookScreen> with SingleTickerProv
               ),
               const SizedBox(height: 6),
               Text(
-                'Po obvodu = spin (po směru hodin FS, proti BS) · přes střed = grab · kosočtverec = flip. '
-                'Spoj triky jedním tahem – další začíná tam, kde předchozí skončil. Pusť prst, když kruh dosedne na hranu.',
+                l.trickBookHelp,
                 style: hudStyle.copyWith(fontSize: 14, color: Palette.dim, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
@@ -107,7 +108,7 @@ class _TrickBookScreenState extends State<TrickBookScreen> with SingleTickerProv
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.78,
-                  children: [for (final e in entries) _Card(entry: e, anim: anim)],
+                  children: [for (final e in entries(l)) _Card(entry: e, anim: anim)],
                 ),
               ),
             ],
@@ -149,7 +150,7 @@ class _Card extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           Text(
-            '${entry.points} b  ${'●' * entry.grade}${'○' * (5 - entry.grade)}',
+            '${L10n.of(context).pointsShort(entry.points)}  ${'●' * entry.grade}${'○' * (5 - entry.grade)}',
             style: hudStyle.copyWith(fontSize: 13, color: Palette.good),
           ),
           if (entry.note != null)
