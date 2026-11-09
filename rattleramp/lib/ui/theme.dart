@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// The three switchable looks. Same game, different paint: colours, outline
 /// ink, glow and a pixelation factor for the whole game layer.
 enum ArtStyle {
-  neon('NEON'),
-  comic('KOMIKS'),
-  pixel('PIXEL');
-
-  final String label;
-  const ArtStyle(this.label);
+  neon,
+  comic,
+  pixel;
 
   ArtStyle get next => values[(index + 1) % values.length];
+
+  String label(L10n l) => switch (this) {
+    ArtStyle.neon => l.styleNeon,
+    ArtStyle.comic => l.styleComic,
+    ArtStyle.pixel => l.stylePixel,
+  };
 }
 
 class StyleSpec {
@@ -140,6 +145,10 @@ final Map<ArtStyle, StyleSpec> styleSpecs = {
 /// style restyles everything on the next frame / rebuild.
 abstract final class Palette {
   static ArtStyle style = ArtStyle.neon;
+
+  /// Set from the active locale. Letter spacing breaks joined scripts
+  /// (Arabic, Indic, Thai), so the HUD drops it there.
+  static bool tightLetters = false;
   static StyleSpec get spec => styleSpecs[style]!;
 
   static Color get night => spec.night;
@@ -156,4 +165,4 @@ abstract final class Palette {
   static Color get dim => spec.dim;
 }
 
-TextStyle get hudStyle => Palette.spec.hud;
+TextStyle get hudStyle => Palette.tightLetters ? Palette.spec.hud.copyWith(letterSpacing: 0) : Palette.spec.hud;

@@ -5,6 +5,7 @@ import '../core/trick_defs.dart';
 import '../game/avatar_sprites.dart';
 import '../game/rattle_game.dart';
 import 'app.dart';
+import '../l10n/app_localizations.dart';
 import 'theme.dart';
 import 'tuning_panel.dart';
 
@@ -50,6 +51,7 @@ class _AttractScreenState extends State<AttractScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final l = L10n.of(context);
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, c) {
@@ -77,7 +79,7 @@ class _AttractScreenState extends State<AttractScreen> with SingleTickerProvider
                 child: IgnorePointer(
                   child: FadeTransition(
                     opacity: Tween(begin: 0.35, end: 1.0).animate(pulse),
-                    child: Text('TAPNI A JEĎ', style: hudStyle.copyWith(fontSize: 44)),
+                    child: Text(l.tapToRide, style: hudStyle.copyWith(fontSize: 44)),
                   ),
                 ),
               ),
@@ -86,7 +88,7 @@ class _AttractScreenState extends State<AttractScreen> with SingleTickerProvider
                 bottom: 24,
                 child: IgnorePointer(
                   child: Text(
-                    'TRIK DNE: ${widget.daily.name.toUpperCase()} ×2',
+                    l.dailyTrick(widget.daily.name.toUpperCase()),
                     style: hudStyle.copyWith(fontSize: 20, color: Palette.good),
                   ),
                 ),
@@ -98,7 +100,7 @@ class _AttractScreenState extends State<AttractScreen> with SingleTickerProvider
                   children: [
                     _BigButton(label: 'TRICK BOOK', color: Palette.rampEdge, onTap: widget.onTrickBook),
                     const SizedBox(width: 16),
-                    _BigButton(label: 'PRO ×1,5', color: Palette.coping, onTap: () => widget.onStart(true)),
+                    _BigButton(label: l.proButton, color: Palette.coping, onTap: () => widget.onStart(true)),
                   ],
                 ),
               ),
@@ -106,7 +108,7 @@ class _AttractScreenState extends State<AttractScreen> with SingleTickerProvider
                 top: 24,
                 right: 24,
                 child: _BigButton(
-                  label: 'STYL: ${widget.settings.style.label}',
+                  label: l.styleButton(widget.settings.style.label(l)),
                   color: Palette.good,
                   small: true,
                   onTap: () => widget.settings.style = widget.settings.style.next,
