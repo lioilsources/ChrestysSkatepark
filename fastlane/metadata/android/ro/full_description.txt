@@ -1,0 +1,10 @@
+RattleRamp este un joc de skate 2D pe o rampă U. Desenezi trucurile cu un deget pe o grilă 3×3 și ridici degetul exact când skaterul atinge muchia rampei.
+
+• Pe margine = spin, prin centru = grab, rombul = flip
+• Leagă trucurile într-o singură mișcare în combo-uri – McTwist, Rodeo, 540 Japan și altele
+• Trick book cu model animat pentru fiecare grab, flip și spin
+• Trucul zilei dă puncte duble, modul Pro ×1,5 fără indicii
+• 8 skateri, ținute și grafici de placă, inclusiv mascota șarpe cu clopoței
+• Trei stiluri: neon, benzi desenate și pixel
+
+Creat pentru tableta din barul U Chřestýše de lângă skatepark – o tură rapidă cât ți se toarnă berea.

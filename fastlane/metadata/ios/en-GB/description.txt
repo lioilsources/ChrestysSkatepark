@@ -1,0 +1,10 @@
+RattleRamp is a 2D skate game on a U-ramp. Draw tricks with one finger on a 3×3 grid and let go exactly when your rider hits the coping.
+
+• Around the edge = spin, through the centre = grab, the diamond = flip
+• Chain tricks into combos in one stroke – McTwist, Rodeo, 540 Japan and more
+• Trick book with an animated pattern for every grab, flip and spin
+• Trick of the day scores double, Pro mode ×1.5 without hints
+• 8 riders, outfits and deck graphics, including the rattlesnake mascot
+• Three art styles: neon, comic and pixel
+
+Made for the tablet at the U Chřestýše bar next to the skate park – a quick ride while your beer is poured.

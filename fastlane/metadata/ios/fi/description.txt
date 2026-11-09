@@ -1,0 +1,10 @@
+RattleRamp on 2D-skeittipeli U-rampilla. Piirrä temput yhdellä sormella 3×3-ruudukkoon ja irrota juuri, kun skeittari osuu reunaan.
+
+• Reunaa pitkin = spin, keskeltä = grab, vinoneliö = flip
+• Yhdistä temput yhdellä vedolla comboiksi – McTwist, Rodeo, 540 Japan ja muita
+• Trick book, jossa jokaiselle grabille, flipille ja spinille on animoitu kuvio
+• Päivän temppu tuo tuplapisteet, Pro-tila ×1,5 ilman vihjeitä
+• 8 skeittaria, asuja ja lautagrafiikoita, mukana kalkkarokäärmemaskotti
+• Kolme tyyliä: neon, sarjakuva ja pikseli
+
+Tehty U Chřestýše -baarin tablettiin skeittipuiston vieressä – nopea kierros sillä aikaa, kun oluesi lasketaan.
