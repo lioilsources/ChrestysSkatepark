@@ -73,7 +73,7 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
   Picker sits between attract and ride; 5 s countdown starts the ride with the current pick, each tap restarts it.
 - Sprites: `tool/spritegen.py` — FLUX.1-schnell NIM on the Spark (localhost only:
   `ssh -f -N -L 18030:localhost:8030 spark-99bb`) → BiRefNet cut-out in ComfyUI (`spark-99bb:8188`, one job at a
-  time, check `/queue`, ComfyUI is only up in its daytime window) → `assets/sprites/{heads,decks}/`. Check with
+  time, check `/queue`; GPU only under a broker lease, e.g. `sparkctl lease <projekt> comfyui,flux-schnell <min>`) → `assets/sprites/{heads,decks}/`. Check with
   `SNAP_DIR=/tmp/x flutter test test/avatar_sheet_test.dart`.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
 - `dart format -l 120`.
