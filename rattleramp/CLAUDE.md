@@ -76,4 +76,8 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
   time, check `/queue`; GPU only under a broker lease, e.g. `sparkctl lease <projekt> comfyui,flux-schnell <min>`) → `assets/sprites/{heads,decks}/`. Check with
   `SNAP_DIR=/tmp/x flutter test test/avatar_sheet_test.dart`.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
+- Store listing: texts in `../fastlane/metadata/{ios,android}/<locale>/`, privacy/support pages in `../docs/`
+  (GitHub Pages). Screenshots: `tool/store_screenshots.sh` (integration_test on the iPhone 6.9" / iPad 13"
+  simulators, landscape) → `python3 tool/upload_store_screenshots.py ios`. UI is Czech only, so cs and en-US
+  get the same images.
 - `dart format -l 120`.

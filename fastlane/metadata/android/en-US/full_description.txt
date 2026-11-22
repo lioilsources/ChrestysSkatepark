@@ -1,0 +1,20 @@
+Skatepark: Chřestýš is a 2D skate game on a U-ramp. Draw a trick with one finger on a 3×3 grid and let go exactly when your rider reaches the coping. Nail the timing and the trick lands; miss it and you bail.
+
+HOW IT WORKS
+• Around the edge of the grid = spin, through the centre = grab, the diamond = flip
+• Chain tricks in one stroke into combos like McTwist, Rodeo or 540 Japan
+• Release timing is judged Perfect, Good or Late – faster riding means tighter windows
+• No trick on a pass costs speed; run out of speed and the ride is over
+
+WHAT'S INSIDE
+• 14 grabs, 12 flips, spins up to 1080 and 5 named combos
+• Trick book with an animated swipe pattern for every trick
+• Hints with three tricks that fit your current speed
+• Trick of the day scores double; Pro mode scores ×1.5 without hints
+• Riders, outfit colours and deck graphics, including the rattlesnake mascot
+• Three art styles: neon, comic and pixel
+• End-of-ride card with score, best trick, longest combo and average timing
+
+Rides are short. Scores are not saved between rides and there are no accounts, ads or in-app purchases. The game works fully offline and collects no data.
+
+The menus and messages are in Czech; trick names and timing calls (PERFECT, BAIL!) use the usual English skate terms. Made for the tablet at the U Chřestýše bar next to the skate park; best played in landscape on a tablet, also runs on phones.

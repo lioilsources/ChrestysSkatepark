@@ -1,0 +1,11 @@
+Skatepark: Chřestýš (in-app title RattleRamp) is a 2D skate game on a U-ramp, made for the guest tablet at the U Chřestýše bar next to a skate park. There is no account, login, chat, user-generated content, leaderboard, network access, ads or in-app purchase; nothing is saved or collected.
+
+The interface text is in Czech (trick names and timing calls are English skate terms). The app runs in landscape only.
+
+How to use: tap anywhere on the title screen ("TAPNI A JEĎ" = tap and ride). Pick a rider and tap "JEĎ!" (or wait 5 s). During the ride, draw a pattern on the 3×3 grid in the bottom-right corner and lift the finger when the shrinking ring reaches the edge of the ramp: around the edge = spin, through the centre = grab (e.g. middle row left-to-right = Indy), the diamond = flip. The hint strip at the bottom shows three tricks that currently fit. Wrong timing or an unknown pattern ends the ride with a score card; tap it to return. "TRICK BOOK" lists every trick with its pattern, "PRO ×1,5" starts a ride without hints, "STYL" switches the art style.
+
+Hidden staff setting: a 3-second long press in the top-left corner of the title screen opens a tuning panel (timing window, touch latency, start speed), used by bar staff to calibrate the tablet. It changes gameplay feel only and resets when the app closes.
+
+Art: the rattlesnake icon, ramp and skater bodies are drawn in code; the rider head and deck sprites are original images the developer generated for this app. No third-party protected material.
+
+The app works the same in all regions.

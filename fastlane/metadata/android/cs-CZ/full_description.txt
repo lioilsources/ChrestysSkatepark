@@ -1,0 +1,20 @@
+Skatepark: Chřestýš je 2D skate hra na U-rampě. Trik nakreslíš jedním prstem do mřížky 3×3 a pustíš ho přesně ve chvíli, kdy jezdec dojede na hranu rampy. Trefíš načasování a trik dojedeš, netrefíš a padáš.
+
+JAK TO FUNGUJE
+• Po obvodu mřížky = spin, přes střed = grab, kosočtverec = flip
+• Spoj triky jedním tahem do komba – McTwist, Rodeo, 540 Japan
+• Puštění se hodnotí jako Perfect, Good nebo Late – čím rychleji jedeš, tím užší okno
+• Průjezd bez triku stojí rychlost; když dojde, jízda končí
+
+CO V NÍ NAJDEŠ
+• 14 grabů, 12 flipů, spiny až do 1080 a 5 pojmenovaných komb
+• Trick book s animovaným vzorem tahu ke každému triku
+• Nápověda se třemi triky, které se vejdou do tvé aktuální rychlosti
+• Trik dne za dvojnásobek bodů, režim Pro ×1,5 bez nápovědy
+• Jezdci, barvy oblečení a grafiky desek včetně maskota chřestýše
+• Tři výtvarné styly: neon, komiks a pixel
+• Karta na konci jízdy se skóre, nejlepším trikem, nejdelším kombem a průměrným timingem
+
+Jízdy jsou krátké. Skóre se mezi jízdami neukládá, nejsou tu účty, reklamy ani nákupy v aplikaci. Hra funguje úplně offline a nesbírá žádná data.
+
+Hra je česky; názvy triků a hlášky (PERFECT, BAIL!) zůstávají v běžném anglickém skate žargonu. Vznikla pro tablet v baru U Chřestýše vedle skateparku; nejlíp se hraje na šířku na tabletu, běží i na telefonu.
