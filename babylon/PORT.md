@@ -66,6 +66,33 @@ Zlaté vektory (F1): `tool/dump_vectors.dart` spustí parser, scoring a `RideSim
 | `ui/app.dart` | 156 | `ui/app.ts` | P2 | F3 | přepínání obrazovek, idle timeout |
 | `main.dart` | 15 | `index.html` + `game/main.ts` | — | F0 | |
 
+## Funkce
+
+Seznam pro videa (plán kap. 5a): jedno video = jedna funkce a klient. Videa ani změny na olin.now
+v F0 nevznikají. Stav **F** = Flutter (M0–M2), **W** = web. Složka videa: `Store/shorts/rattleramp/NN-<id>/`
+(RattleRamp tam zatím nemá nic, číslování začíná od 01).
+
+| id | Popis | Stav F | Stav W | Video |
+|---|---|---|---|---|
+| `ride` | Jízda v U-rampě coping → coping, rychlost roste s dobrými triky, bez triku klesá až do rolloutu | hotovo | F0 spike (fyzika segmentů 1:1) | `01-ride` |
+| `timing` | Rytmický kruh se stahuje na coping, release se hodnotí PERFECT / GOOD / LATE / MISS, Δ ms | hotovo | F0 spike | `02-timing` |
+| `swipe-grid` | Triky se kreslí tahem po mřížce 3×3 (dotyk i myš), přeskočený uzel se doplní | hotovo | F0 hotovo | `03-swipe-grid` |
+| `spins` | Otočky tahem po vnějším kruhu, směr = FS/BS, 180–1080 | hotovo | F1 pravidla, F2 obraz | `04-spins` |
+| `grabs` | Graby tahem přes střed, různé styly těla (tuck, tweak, stiff, split) | hotovo | F1/F2 | `05-grabs` |
+| `flips` | Flipy po diamantu, deska se točí (kickflip, heelflip, shove-it…) | hotovo | F1/F2 | `06-flips` |
+| `combos` | Řetězení spin + grab + flip v jednom tahu, delší trik = větší pump, nevejde-li se do airu → bail | hotovo | F1/F2 | `07-combos` |
+| `bail` | Pád při špatném načasování nebo neznámém tahu | hotovo | F0 spike (pád bez animace těla) | `08-bail` |
+| `scoring` | Body = báze × timing × rychlost × combo × variety + air, streak, nejlepší trik | hotovo | F1 | `09-scoring` |
+| `trick-of-day` | Trik dne za ×2, stejný pro všechny ten den | hotovo | F1/F3 | `10-trick-of-day` |
+| `pro-mode` | Pro režim: bez nápovědy, ×1,5 | hotovo | F3 | `11-pro-mode` |
+| `hints` | Pruh nápověd s tahy triků dostupných při aktuální rychlosti | hotovo | F2 | `12-hints` |
+| `trick-book` | Kniha triků se vzory tahů | hotovo | F3 | `13-trick-book` |
+| `avatars` | 8 postav (maskot Chřestýš s chřestítkem), 6 outfitů, 6 desek, výběr do 5 s | hotovo | F3 | `14-avatars` |
+| `art-styles` | Tři styly za běhu: neon, komiks, pixel | hotovo | F0 jen neon, F3 zbytek | `15-art-styles` |
+| `attract` | Úvodní smyčka s demo jezdcem, klepnutí spustí jízdu | hotovo | F3 | `16-attract` |
+| `stat-card` | Souhrn jízdy: skóre, landed, max streak, nejlepší trik, průměrné načasování | hotovo | F2 | `17-stat-card` |
+| `web-play` | Hra v prohlížeči bez instalace, odkaz z olin.now (jen W) | — | F0 spike na `/play/` | `18-web-play` |
+
 ## Co se na webu vypouští
 
 - **Kiosk (M4):** lock-task, Guided Access, PIN admin. Web je odkaz, ne kiosk.
