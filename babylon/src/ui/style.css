@@ -1,0 +1,16 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0E1018; color: #F4F1E8;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; touch-action: none;
+  -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+#pad { position: fixed; right: 16px; bottom: 16px; border-radius: 24px; touch-action: none;
+  background: rgba(14,16,24,0.35); border: 2px solid rgba(62,240,255,0.25); box-sizing: border-box; }
+.hud { position: fixed; font-weight: 900; letter-spacing: 1.2px; text-shadow: 0 0 6px #000; pointer-events: none; }
+#stats { left: 20px; top: 16px; font-size: 18px; }
+#delta { right: 20px; top: 16px; font-size: 14px; color: rgba(244,241,232,0.6); }
+#fps { left: 20px; top: 42px; font-size: 12px; color: rgba(244,241,232,0.6); }
+#popup { left: 0; right: 0; top: 72px; text-align: center; opacity: 0; }
+#popup .big { font-size: 44px; }
+#popup .small { font-size: 24px; }
+#popup.pop { animation: pop 0.9s ease-out forwards; }
+@keyframes pop { 0% { opacity: 0; transform: scale(0.7); } 15% { opacity: 1; transform: scale(1.05); }
+  70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
