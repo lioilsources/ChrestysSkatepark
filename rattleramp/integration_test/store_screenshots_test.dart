@@ -2,6 +2,9 @@
 // stat card and the attract screen. Run by tool/store_screenshots.sh (flutter drive on a simulator);
 // test_driver/screenshot_driver.dart writes the PNGs to SCREENSHOT_DIR.
 //
+// iPad ignores the landscape lock (multitasking), so in a portrait window the app is laid out landscape inside a
+// RotatedBox and the script rotates those PNGs back.
+//
 // The app UI is Czech only, so one set is shot and the script copies it to every store locale.
 // Rides are driven through RideSim with perfectly timed releases, so every shot shows landed tricks.
 
@@ -37,7 +40,7 @@ void main() {
 
     Future<void> open(ArtStyle style) async {
       Palette.style = style;
-      await tester.pumpWidget(RattleApp(key: ValueKey(style), book: book, sprites: sprites));
+      await tester.pumpWidget(_Landscape(child: RattleApp(key: ValueKey(style), book: book, sprites: sprites)));
       await _wait(tester, 2.5); // orientation settles, demo rider drops in
     }
 
@@ -149,5 +152,24 @@ Future<void> _wait(WidgetTester tester, double seconds) async {
   final end = DateTime.now().add(Duration(milliseconds: (seconds * 1000).round()));
   while (DateTime.now().isBefore(end)) {
     await tester.pump(const Duration(milliseconds: 16));
+  }
+}
+
+/// Lays [child] out landscape even when the window is portrait.
+class _Landscape extends StatelessWidget {
+  final Widget child;
+  const _Landscape({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    if (mq.size.width >= mq.size.height) return child;
+    return RotatedBox(
+      quarterTurns: 1,
+      child: MediaQuery(
+        data: mq.copyWith(size: mq.size.flipped, padding: EdgeInsets.zero, viewPadding: EdgeInsets.zero),
+        child: child,
+      ),
+    );
   }
 }

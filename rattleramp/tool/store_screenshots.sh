@@ -45,8 +45,10 @@ ios() { # ios <kind> <prefix> <width> <height> <simulators…>
   xcrun simctl status_bar "$udid" clear
   [ $booted = 1 ] || xcrun simctl shutdown "$udid"
   for f in "$RAW/$kind"/*.png; do
-    local size; size=$(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixel/{printf "%s ", $2}')
-    [ "$size" = "$w $h " ] || { echo "$f is ${size}, expected $w×$h" >&2; exit 1; }
+    # Portrait capture of the rotated landscape layout (iPad) → turn it upright.
+    [ "$(sips -g pixelWidth "$f" | awk '/pixelWidth/{print $2}')" = "$h" ] && sips -r 270 "$f" >/dev/null
+    local size; size=$(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixelWidth|pixelHeight/{printf "%s ", $2}')
+    [ "$size" = "$w $h " ] || { echo "$f is ${size}, expected ${w}x${h}" >&2; exit 1; }
   done
   for loc in cs en-US; do
     local out="$META/ios/$loc/screenshots"; mkdir -p "$out"; rm -f "$out/${prefix}"_*.png
