@@ -22,6 +22,7 @@ export class SwipePad {
   private last: { x: number; y: number } | null = null;
   private finger: { x: number; y: number } | null = null;
   private readonly nodes: number[] = [];
+  private demoKey = '';
   private readonly ctx: CanvasRenderingContext2D;
 
   constructor(
@@ -37,6 +38,40 @@ export class SwipePad {
     el.addEventListener('pointerup', (e) => this.up(e, true));
     el.addEventListener('pointercancel', (e) => this.up(e, false));
     new ResizeObserver(() => this.draw()).observe(el);
+  }
+
+  /**
+   * Demo / video: show a scripted swipe drawn up to k (0…1) with a finger dot;
+   * null hides it. Real touches are unaffected.
+   */
+  showDemo(nodes: readonly number[] | null, k = 1): void {
+    if (this.pointer !== null) return;
+    const key = nodes ? `${nodes.join('')}:${k.toFixed(3)}` : '';
+    if (key === this.demoKey) return;
+    this.demoKey = key;
+    this.nodes.length = 0;
+    this.finger = null;
+    if (nodes && nodes.length > 0) {
+      const segs = nodes.length - 1;
+      const shown = Math.min(segs, Math.max(0, k * segs));
+      const i = Math.floor(shown);
+      for (let n = 0; n <= Math.min(i, segs); n++) this.nodes.push(nodes[n]);
+      if (i < segs) {
+        const a = this.center(nodes[i]);
+        const b = this.center(nodes[i + 1]);
+        const f = shown - i;
+        this.finger = { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f };
+      } else this.finger = this.center(nodes[segs]);
+    }
+    this.draw();
+    if (this.finger) {
+      const g = this.ctx;
+      const cell = Math.min(this.el.clientWidth, this.el.clientHeight) / 3;
+      g.fillStyle = withAlpha(pal().skater, 0.75);
+      g.beginPath();
+      g.arc(this.finger.x, this.finger.y, cell * 0.22, 0, Math.PI * 2);
+      g.fill();
+    }
   }
 
   /** Drop a half-drawn path (new ride). */
