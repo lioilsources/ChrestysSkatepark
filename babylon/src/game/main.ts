@@ -1,9 +1,11 @@
-// Entry point: steps the SpikeRide at the Dart sim's fixed rate, maps wall-clock
+// Entry point: steps the RideSim at the Dart sim's fixed rate, maps wall-clock
 // releases to ride time (RattleGame.release) and renders the Babylon scene.
 import { Engine } from '@babylonjs/core/Engines/engine';
 
 import { defaultConfig } from '../rules/ride-config';
-import { SpikeRide } from '../rules/spike-ride';
+import { RideSim } from '../rules/ride-sim';
+import { dailyTokenFor, defaultBook } from '../rules/trick-defs';
+import { TrickParser } from '../rules/trick-parser';
 import { Hud } from '../ui/hud';
 import { SwipePad } from '../ui/swipe-pad';
 import { RampScene } from './scene';
@@ -16,9 +18,13 @@ const debug = params.has('debug');
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: false, antialias: true }, true);
 const config = defaultConfig();
-const hud = new Hud();
+const book = defaultBook();
+const parser = new TrickParser(book);
+const daily = dailyTokenFor(book, new Date());
+const hud = new Hud(daily.name);
+const makeRide = (): RideSim => new RideSim(config, parser, { dailyTokenId: daily.id });
 
-let ride = new SpikeRide(config);
+let ride = makeRide();
 let rs = new RampScene(engine, ride);
 let acc = 0;
 let wallAtUpdate = performance.now();
@@ -29,7 +35,7 @@ const rideNow = (): number => ride.time + acc + (performance.now() - wallAtUpdat
 
 function newRide(): void {
   rs.scene.dispose();
-  ride = new SpikeRide(config);
+  ride = makeRide();
   rs = new RampScene(engine, ride);
   acc = 0;
   lastInputT = 0;
@@ -75,7 +81,7 @@ engine.runRenderLoop(() => {
   }
   rs.sync();
   rs.scene.render();
-  hud.update(ride.speed, ride.landed);
+  hud.update(ride.stats.score, ride.stats.streak, ride.speed);
   if (firstFrame && rs.scene.isReady()) {
     // First frame with every mesh drawn (shaders compiled), not just the clear colour.
     firstFrame = false;

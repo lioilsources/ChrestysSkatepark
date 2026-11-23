@@ -1,6 +1,7 @@
 // npm run gen: rattleramp/lib/core/ride_config.dart → src/rules/generated/ride-config.ts
-// test/config-sync.test.ts fails when the generated file drifts from Dart.
-import { writeFileSync } from 'node:fs';
+//              rattleramp/assets/tricks.json      → src/rules/generated/tricks.json (byte copy)
+// test/config-sync.test.ts fails when a generated file drifts from the Flutter sources.
+import { copyFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseDartConfig } from './dart-config';
 
@@ -18,3 +19,7 @@ export function renderConfig(values: Record<string, number>): string {
 const out = fileURLToPath(new URL('../src/rules/generated/ride-config.ts', import.meta.url));
 writeFileSync(out, renderConfig(parseDartConfig()));
 console.log(`wrote ${out}`);
+
+const tricksOut = fileURLToPath(new URL('../src/rules/generated/tricks.json', import.meta.url));
+copyFileSync(fileURLToPath(new URL('../../rattleramp/assets/tricks.json', import.meta.url)), tricksOut);
+console.log(`wrote ${tricksOut}`);
