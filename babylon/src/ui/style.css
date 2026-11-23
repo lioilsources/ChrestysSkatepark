@@ -35,7 +35,7 @@ body.style-pixel #game { image-rendering: pixelated; }
 #popup.pop { animation: pop 0.9s ease-out forwards; }
 @keyframes pop { 0% { opacity: 0; transform: scale(0.7); } 15% { opacity: 1; transform: scale(1.05); }
   70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
-#hints { display: flex; gap: 12px; align-items: center; }
+#hints { display: flex; gap: 12px; align-items: center; background: var(--night-70); border-radius: 14px; padding: 0 10px; box-sizing: border-box; }
 #hints .hint { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 16px; }
 #hints .hint canvas { flex: none; }
 #hints .hint span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }

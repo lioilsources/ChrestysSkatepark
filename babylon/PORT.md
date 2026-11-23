@@ -182,3 +182,7 @@ není v repu. CI repa pinuje Flutter 3.50.x, lokálně byl 3.47.9; velikost se m
    takže první obrazovku nezdržují.
 15. **PWA ikony jsou v gitu** (`public/icons/`, zmenšené z `assets/icon/icon.png`, ne nově generované). Build
    nemá knihovnu na obrázky a CI by je musel zmenšovat při každém běhu. Service worker (offline) není, hra je online odkaz.
+16. **Skriptovaný hráč pro videa** (`rules/demo.ts`): `?demo=<id funkce>&seed=<n>&zoom=<n>`. Každá funkce má vlastní
+   výběr triků a načasování, tah se viditelně kreslí na mřížku a stejný seed hraje stejnou jízdu. `zoom` přiblíží
+   kameru a jezdce sleduje; výchozí pohled hry (P2) zůstává beze změny.
+

@@ -64,6 +64,11 @@ export class RampScene {
   private readonly cue: SpritePlane;
   private readonly backdrop: DynamicTexture;
   private backdropSize = '';
+  /** Video framing (?zoom): >1 zooms in and follows the skater. */
+  private zoom = 1;
+  private view: { rect: WorldRect; cw: number; ch: number; k: number; cy: number } | null = null;
+  private camX = 0;
+  private camY = 0;
 
   /** showCue false = attract autopilot (cue_component.dart hides it). */
   constructor(readonly engine: Engine, private readonly ride: RideSim, avatar: Avatar, sprites: AvatarSprites, private readonly showCue = true) {
@@ -153,6 +158,8 @@ export class RampScene {
     logo.position.set(0, -0.35 - lh / 2, -0.005);
   }
 
+  setZoom(z: number): void { this.zoom = Math.max(1, z); }
+
   /** Fit the world into a CSS-pixel rectangle of the canvas (WorldView.fit). */
   fit(rect: WorldRect): void {
     const canvas = this.engine.getRenderingCanvas();
@@ -164,6 +171,15 @@ export class RampScene {
     const k = Math.min(rect.width / b.width, rect.height / hWorld); // px per metre
     const cx = 0;
     const cy = b.bottom + hWorld / 2;
+    this.view = { rect, cw, ch, k, cy };
+    this.camX = cx;
+    this.camY = cy;
+    this.applyCamera(cx, cy, k * this.zoom, rect, cw, ch);
+    this.redrawBackdrop(cw, ch);
+  }
+
+  /** Ortho bounds so world point (cx, cy) sits at the rect centre, k px per metre. */
+  private applyCamera(cx: number, cy: number, k: number, rect: WorldRect, cw: number, ch: number): void {
     const ox = (rect.left + rect.width / 2 - cw / 2) / k;
     const oy = (rect.top + rect.height / 2 - ch / 2) / k;
     const halfW = cw / 2 / k;
@@ -173,7 +189,6 @@ export class RampScene {
     cam.orthoRight = cx - ox + halfW;
     cam.orthoTop = cy + oy + halfH;
     cam.orthoBottom = cy + oy - halfH;
-    this.redrawBackdrop(cw, ch);
   }
 
   private redrawBackdrop(cw: number, ch: number): void {
@@ -191,7 +206,20 @@ export class RampScene {
   /** Copy sim state into the scene for this frame. */
   sync(): void {
     const ride = this.ride;
-    this.skater.sync(ride.pose);
+    const pose = ride.pose;
+    this.skater.sync(pose);
+    if (this.zoom > 1 && this.view) {
+      // Follow the skater, eased, without leaving the fitted world.
+      const v = this.view;
+      const k = v.k * this.zoom;
+      const b = worldBounds(ride.config, ride.ramp);
+      const hw = v.rect.width / 2 / k, hh = v.rect.height / 2 / k;
+      const tx = Math.min(b.width / 2 - hw, Math.max(-b.width / 2 + hw, pose.x));
+      const ty = Math.min(b.top - hh, Math.max(b.bottom + hh, pose.y + 0.8));
+      this.camX += (tx - this.camX) * 0.18;
+      this.camY += (ty - this.camY) * 0.18;
+      this.applyCamera(this.camX, this.camY, k, v.rect, v.cw, v.ch);
+    }
 
     // Cue (cue_component.dart): only while rolling towards the edge, before a release is judged.
     const tte = ride.timeToEdge;

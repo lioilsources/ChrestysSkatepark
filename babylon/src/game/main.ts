@@ -3,13 +3,15 @@
 // part is rattle_game.dart + ride_screen.dart: fixed-rate RideSim, wall-clock releases
 // mapped to ride time, DOM HUD, hint strip and stat card.
 //
-// Deep links: ?ride starts a ride straight away, ?pro a Pro ride, ?demo loops the
-// autopilot on the ride screen (videos), ?debug shows FPS.
+// Deep links: ?ride starts a ride straight away, ?pro a Pro ride, ?debug shows FPS.
+// Videos: ?demo=<feature id> plays a scripted ride on the ride screen (rules/demo.ts),
+// &seed=<n> makes it repeat exactly, &zoom=<n> follows the skater; plain ?demo = mixed tricks, looping.
 import { Engine } from '@babylonjs/core/Engines/engine';
 
 import { Autopilot } from '../rules/autopilot';
+import { DemoPlayer, demoOptions, lcg, type DemoPlan } from '../rules/demo';
 import { avatarOf, PRESETS, type Avatar } from '../rules/avatar';
-import { feasibleHints, pickHints } from '../rules/hints';
+import { feasibleHints, pickHints, type Hint } from '../rules/hints';
 import { defaultConfig, type RideConfig } from '../rules/ride-config';
 import { RideSim } from '../rules/ride-sim';
 import { dailyTokenFor, defaultBook } from '../rules/trick-defs';
@@ -33,6 +35,13 @@ const t0 = performance.now();
 const params = new URLSearchParams(location.search);
 const debug = params.has('debug');
 const demo = params.has('demo');
+const demoId = params.get('demo') || 'ride';
+const demoOpts = demoOptions(demoId);
+const seed = params.get('seed');
+/** Seeded when ?seed is given, so a video take can be repeated frame for frame. */
+/** ?zoom=<n> (videos): zoom in on the ride screen with the camera following the skater. */
+const zoom = Number(params.get('zoom')) || 1;
+const random = seed !== null ? lcg(Number(seed) || 1) : Math.random;
 
 const canvas = byId('game') as HTMLCanvasElement;
 const engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: false, antialias: true }, true);
@@ -52,7 +61,9 @@ let screen: Screen = 'attract';
 let pro = false;
 let ride!: RideSim;
 let rs: RampScene | null = null;
-let bot: Autopilot | null = null;
+let bot: Autopilot | DemoPlayer | null = null;
+let plan: DemoPlan | null = null;
+let shownHints: readonly Hint[] = [];
 let acc = 0;
 let wallAtUpdate = performance.now();
 let lastInputT = 0;
@@ -65,9 +76,14 @@ const rideNow = (): number => ride.time + acc + (performance.now() - wallAtUpdat
 /** Builds a new ride and scene. autopilot: attract / demo rider (attract hides the cue). */
 function startRide(autopilot: boolean, avatar: Avatar): void {
   rs?.scene.dispose();
-  ride = new RideSim(config(), parser, autopilot ? {} : { proMode: pro, dailyTokenId: daily.id });
-  bot = autopilot ? new Autopilot(book, parser, Math.random) : null;
+  const scored = !autopilot || (demo && screen === 'ride');
+  ride = new RideSim(config(), parser, scored ? { proMode: pro, dailyTokenId: daily.id } : {});
+  bot = !autopilot ? null
+    : demo && screen === 'ride' ? new DemoPlayer(book, parser, demoOpts, random, daily.id, () => shownHints)
+      : new Autopilot(book, parser, random);
+  plan = null;
   rs = new RampScene(engine, ride, avatar, sprites, !autopilot || demo);
+  if (screen === 'ride') rs.setZoom(zoom);
   acc = 0;
   lastInputT = 0;
   finishedShown = false;
@@ -75,7 +91,9 @@ function startRide(autopilot: boolean, avatar: Avatar): void {
 }
 
 const refreshHints = (): void => {
-  if (!pro) hud.showHints(pickHints(feasibleHints(book, parser, ride), 3, Math.random));
+  if (pro) return;
+  shownHints = pickHints(feasibleHints(book, parser, ride), 3, random);
+  hud.showHints(shownHints);
 };
 
 const release = (nodes: number[]): void => {
@@ -112,7 +130,7 @@ function setOverlay(o: Overlay | null): void {
   if (o) document.body.append(o.root);
 }
 
-const attractAvatar = (): Avatar => avatarOf(PRESETS[Math.floor(Math.random() * PRESETS.length)]);
+const attractAvatar = (): Avatar => avatarOf(PRESETS[Math.floor(random() * PRESETS.length)]);
 
 function go(s: Screen, opts: { pro?: boolean } = {}): void {
   screen = s;
@@ -241,7 +259,7 @@ function layout(): void {
 }
 addEventListener('resize', layout);
 
-if (demo || params.has('ride') || params.has('pro')) go('ride', { pro: params.has('pro') && !demo });
+if (demo || params.has('ride') || params.has('pro')) go('ride', { pro: params.has('pro') || demoId === 'pro-mode' });
 else go('attract');
 
 let frames = 0;
@@ -259,7 +277,8 @@ engine.runRenderLoop(() => {
   }
   while (acc >= ride.config.dt) {
     acc -= ride.config.dt;
-    bot?.tick(ride);
+    const p = bot?.tick(ride);
+    if (p) plan = p;
     ride.step();
     for (const e of ride.drainEvents()) {
       if (screen !== 'ride') continue;
@@ -269,12 +288,22 @@ engine.runRenderLoop(() => {
   }
   if (ride.finished && !finishedShown) {
     finishedShown = true;
-    if (screen !== 'ride' || demo) {
+    if (screen !== 'ride' || (demo && !demoOpts.showEnd)) {
       // Attract loop shows off a different character every run.
       startRide(true, screen === 'ride' ? settings.avatar : attractAvatar());
     } else {
       statCard.show(ride.stats, ride.bailReason !== null);
       doneTimer = window.setTimeout(() => go('attract'), 10_000);
+    }
+  }
+  if (plan && screen === 'ride') {
+    // Demo: draw the scripted swipe on the pad, finishing as the finger lifts.
+    const t = rideNow();
+    if (t >= plan.drawStart && t <= plan.release + 0.2) {
+      pad.showDemo(plan.nodes, Math.min(1, (t - plan.drawStart) / Math.max(0.01, plan.release - plan.drawStart)));
+    } else if (t > plan.release + 0.2) {
+      pad.showDemo(null);
+      plan = null;
     }
   }
   if (rs) {
