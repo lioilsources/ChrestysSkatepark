@@ -2,7 +2,7 @@
 
 Webový klient RattleRamp v TypeScriptu nad Babylon.js. Zdroj pravdy je Flutter projekt
 `../rattleramp/` (pravidla v `lib/core/`). Plán: `DevConventions/Prompts/06-PLAN-babylon-web.md`.
-Stav: **F3 (obsah) hotovo**, další F4 (vydání). Hostování: GitHub Pages repa, hra pod `/play/`.
+Stav: **F4 (vydání) hotovo**: PWA manifest a ikony, deep linky, odkaz `play:` na olin.now, `docs/babylon.md`. Hostování: GitHub Pages repa, hra pod `/play/`.
 
 ## Úrovně parity
 
@@ -122,7 +122,7 @@ Celkem `rattleramp/assets/` 2,1 MB.
 | `tricks.json` | 4,3 kB | ano, beze změny | F1 (první obrazovka) |
 | `sprites/heads/*.png` (8 ks) | 484 kB (48–72 kB/ks) | ano | F3, dotáhnout po prvním snímku |
 | `sprites/decks/*.png` (6 ks) | 450 kB (35–104 kB/ks) | ano | F3, dotáhnout po prvním snímku |
-| `icon/icon.png` | 546 kB | zmenšené PWA ikony | F4 |
+| `icon/icon.png` | 546 kB | zmenšené PWA ikony v `public/icons/` (192, 512, apple 180, favicon 32; 275 kB) | **F4 hotovo** |
 | `icon/icon_background.png`, `icon_foreground.png` | 502 + 128 kB | ne (Android adaptive) | — |
 | Zvuky | žádné | — | hra zatím nemá audio; chybějící asset se nehlásí jako chyba |
 | Fonty | systémové (Flutter tahá Roboto z Google Fonts) | systémový font | — |
@@ -142,6 +142,10 @@ servírováno `vite preview` (gzip) pro obě verze. Mediány ze 3 běhů. „Šk
 | První snímek, rychlá síť | ~0,87 s (`flutter-first-frame`) | ~0,12 s (první snímek s hotovými shadery) |
 | První snímek, škrcení | ~9,2 s | ~1,1 s |
 | FPS (desktop, `?debug`) | — | 120 (vsync) |
+
+**F4 (celá hra: tři styly, obrazovky, sprity)**, stejná metoda, mediány ze 3 běhů:
+přeneseno do prvního snímku 0,31 MB, první snímek 1,34 s se škrcením (0,21 s bez), celkem i se sprity 1,25 MB.
+Cíle plánu (první obrazovka do 3 MB, první snímek do 3 s) platí i po F3.
 
 Flutter se měřil na dočasné kopii projektu (`flutter create --platforms=web` mimo repo), nic z buildu
 není v repu. CI repa pinuje Flutter 3.50.x, lokálně byl 3.47.9; velikost se mezi verzemi mění málo.
@@ -176,3 +180,5 @@ není v repu. CI repa pinuje Flutter 3.50.x, lokálně byl 3.47.9; velikost se m
 13. **Klávesnice i v menu:** mezerník/Enter na úvodu = jeď, ve výběru postavy = JEĎ!, Esc = zpět na úvod.
 14. **Sprity zůstávají PNG** (0,9 MB). Převod na WebP/AVIF čeká na rozhodnutí Olina; načítají se až po prvním snímku,
    takže první obrazovku nezdržují.
+15. **PWA ikony jsou v gitu** (`public/icons/`, zmenšené z `assets/icon/icon.png`, ne nově generované). Build
+   nemá knihovnu na obrázky a CI by je musel zmenšovat při každém běhu. Service worker (offline) není, hra je online odkaz.
