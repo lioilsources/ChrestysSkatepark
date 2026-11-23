@@ -2,7 +2,7 @@
 // the first 2 s so a late swipe doesn't skip it.
 import type { RideStats } from '../rules/ride-sim';
 import { byId } from './hud';
-import { NEON } from './palette';
+import { pal } from './palette';
 
 const ARM_MS = 2000;
 
@@ -49,7 +49,7 @@ export class StatCard {
     const title = document.createElement('div');
     title.className = 'title';
     title.textContent = bailed ? 'BAIL!' : 'KONEC JÍZDY';
-    title.style.color = bailed ? NEON.miss : NEON.dim;
+    title.style.color = bailed ? pal().miss : pal().dim;
     const score = document.createElement('div');
     score.className = 'score';
     score.textContent = String(stats.score);

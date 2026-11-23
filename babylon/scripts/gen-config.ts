@@ -1,9 +1,12 @@
 // npm run gen: rattleramp/lib/core/ride_config.dart → src/rules/generated/ride-config.ts
 //              rattleramp/assets/tricks.json      → src/rules/generated/tricks.json (byte copy)
+//              rattleramp/lib/ui/theme.dart       → src/ui/generated/palette.ts
 // test/config-sync.test.ts fails when a generated file drifts from the Flutter sources.
-import { copyFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDartConfig } from './dart-config';
+import { parseDartTheme, renderPalette } from './dart-palette';
 
 export function renderConfig(values: Record<string, number>): string {
   const lines = Object.entries(values).map(([k, v]) => `  ${k}: ${v},`);
@@ -23,3 +26,8 @@ console.log(`wrote ${out}`);
 const tricksOut = fileURLToPath(new URL('../src/rules/generated/tricks.json', import.meta.url));
 copyFileSync(fileURLToPath(new URL('../../rattleramp/assets/tricks.json', import.meta.url)), tricksOut);
 console.log(`wrote ${tricksOut}`);
+
+const paletteOut = fileURLToPath(new URL('../src/ui/generated/palette.ts', import.meta.url));
+mkdirSync(dirname(paletteOut), { recursive: true });
+writeFileSync(paletteOut, renderPalette(parseDartTheme()));
+console.log(`wrote ${paletteOut}`);

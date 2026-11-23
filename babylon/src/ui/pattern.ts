@@ -1,9 +1,7 @@
 // Port of rattleramp/lib/ui/pattern_painter.dart: a 3×3 grid with a node path.
 // progress 0…1 animates a finger dot along the path (trick book, F3);
 // null draws the whole path with an arrow head.
-import { NEON } from './palette';
-
-const DOT = 'rgba(244,241,232,0.21)'; // Palette.dim at alpha 0.35
+import { pal, withAlpha } from './palette';
 
 export function nodeCenter(n: number, w: number, h: number): { x: number; y: number } {
   return { x: ((n % 3) + 0.5) * (w / 3), y: (Math.trunc(n / 3) + 0.5) * (h / 3) };
@@ -13,11 +11,11 @@ export function drawPattern(
   g: CanvasRenderingContext2D, w: number, h: number, path: readonly number[],
   opts: { progress?: number | null; color?: string; strokeScale?: number } = {},
 ): void {
-  const color = opts.color ?? NEON.rampEdge;
+  const color = opts.color ?? pal().rampEdge;
   const ss = opts.strokeScale ?? 1;
   const progress = opts.progress ?? null;
   const unit = Math.min(w, h) / 3;
-  g.fillStyle = DOT;
+  g.fillStyle = withAlpha(pal().dim, 0.35);
   for (let n = 0; n < 9; n++) {
     const c = nodeCenter(n, w, h);
     g.beginPath();
@@ -59,7 +57,7 @@ export function drawPattern(
     g.lineTo(b.x - l * Math.cos(ang + 0.5), b.y - l * Math.sin(ang + 0.5));
     g.stroke();
   } else {
-    g.fillStyle = 'rgba(244,241,232,0.85)';
+    g.fillStyle = withAlpha(pal().skater, 0.85);
     g.beginPath();
     g.arc(tip.x, tip.y, unit * 0.2, 0, Math.PI * 2);
     g.fill();
