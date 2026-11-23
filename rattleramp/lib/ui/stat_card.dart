@@ -63,26 +63,31 @@ class _StatCardState extends State<StatCard> {
       child: Container(
         color: Palette.night.withValues(alpha: 0.88),
         alignment: Alignment.center,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.bailed ? 'BAIL!' : 'KONEC JÍZDY',
-              style: hudStyle.copyWith(fontSize: 28, color: widget.bailed ? Palette.miss : Palette.dim),
-            ),
-            Text('${s.score}', style: hudStyle.copyWith(fontSize: 88, color: Palette.rampEdge)),
-            const SizedBox(height: 12),
-            row('NEJLEPŠÍ TRIK', s.bestTrick == null ? '–' : '${s.bestTrick}  (${s.bestTrickPoints})'),
-            row('NEJDELŠÍ COMBO', '${s.maxStreak}'),
-            row('TRIKŮ', '${s.landed}'),
-            row('PRŮMĚRNÝ TIMING', _timingLabel),
-            const SizedBox(height: 24),
-            AnimatedOpacity(
-              opacity: _armed ? 1 : 0,
-              duration: const Duration(milliseconds: 300),
-              child: Text('TAPNI PRO POKRAČOVÁNÍ', style: hudStyle.copyWith(fontSize: 18, color: Palette.dim)),
-            ),
-          ],
+        padding: const EdgeInsets.all(16),
+        // Sized for a tablet; on a phone in landscape (≈400 pt tall) it scales down instead of overflowing.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.bailed ? 'BAIL!' : 'KONEC JÍZDY',
+                style: hudStyle.copyWith(fontSize: 28, color: widget.bailed ? Palette.miss : Palette.dim),
+              ),
+              Text('${s.score}', style: hudStyle.copyWith(fontSize: 88, color: Palette.rampEdge)),
+              const SizedBox(height: 12),
+              row('NEJLEPŠÍ TRIK', s.bestTrick == null ? '–' : '${s.bestTrick}  (${s.bestTrickPoints})'),
+              row('NEJDELŠÍ COMBO', '${s.maxStreak}'),
+              row('TRIKŮ', '${s.landed}'),
+              row('PRŮMĚRNÝ TIMING', _timingLabel),
+              const SizedBox(height: 24),
+              AnimatedOpacity(
+                opacity: _armed ? 1 : 0,
+                duration: const Duration(milliseconds: 300),
+                child: Text('TAPNI PRO POKRAČOVÁNÍ', style: hudStyle.copyWith(fontSize: 18, color: Palette.dim)),
+              ),
+            ],
+          ),
         ),
       ),
     );
