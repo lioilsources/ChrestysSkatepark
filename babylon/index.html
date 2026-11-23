@@ -12,10 +12,17 @@
 <body>
   <canvas id="game"></canvas>
   <canvas id="pad"></canvas>
-  <div id="stats" class="hud"></div>
+  <div id="stats" class="hud">
+    <span id="score">0</span>
+    <span id="combo" hidden></span>
+    <span id="speed"><span id="speed-fill"></span></span>
+    <span id="pro" hidden>PRO</span>
+  </div>
   <div id="delta" class="hud"></div>
   <div id="fps" class="hud" hidden></div>
   <div id="popup" class="hud"></div>
+  <div id="hints" class="hud"></div>
+  <div id="statcard" hidden></div>
   <script type="module" src="/src/game/main.ts"></script>
 </body>
 </html>

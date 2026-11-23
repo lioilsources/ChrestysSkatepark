@@ -2,7 +2,7 @@
 
 Webový klient RattleRamp v TypeScriptu nad Babylon.js. Zdroj pravdy je Flutter projekt
 `../rattleramp/` (pravidla v `lib/core/`). Plán: `DevConventions/Prompts/06-PLAN-babylon-web.md`.
-Stav: **F1 (pravidla) hotovo**, další F2 (scéna a ovládání). Hostování: GitHub Pages repa, hra pod `/play/`.
+Stav: **F2 (scéna a ovládání) hotovo**, další F3 (obsah). Hostování: GitHub Pages repa, hra pod `/play/`.
 
 ## Úrovně parity
 
@@ -34,7 +34,7 @@ Stav: **F1 (pravidla) hotovo**, další F2 (scéna a ovládání). Hostování: 
 | `core/trick_defs.dart` | 237 | `rules/trick-defs.ts` | P0 | **F1 hotovo** | `npm run gen` kopíruje `assets/tricks.json` bajt po bajtu do `rules/generated/`; trik dne ověřen na 10 letech dní |
 | `core/trick_parser.dart` | 110 | `rules/trick-parser.ts` | P0 | **F1 hotovo** | vektory: všechny tahy po mřížce do 5 kroků, všechny řetězitelné ≤3-tokenové sekvence, 3000 dlouhých náhodných |
 | `core/scoring.dart` | 72 | `rules/scoring.ts` | P0 | **F1 hotovo** | 1500 rozpadů bodů; zaokrouhlení jako Dart `round()` (`dartRound`) |
-| `core/avatar.dart` | 74 | `rules/avatar.ts` | P0 | F3 | presety, outfity, decky; barvy ARGB int → CSS přes helper v `ui/` |
+| `core/avatar.dart` | 74 | `rules/avatar.ts` | P0 | **F2 hotovo** (data), výběr F3 | presety, outfity, decky; barvy ARGB int → CSS přes `argbToCss` v `ui/skater-paint.ts` |
 
 ### Zlaté vektory
 
@@ -55,10 +55,10 @@ CI (`web.yml`, job `golden`) vektory přegeneruje: `book`/`parser`/`scoring` mus
 
 | Dart | ř. | TS | Parita | Fáze | Poznámka |
 |---|---|---|---|---|---|
-| `game/rattle_game.dart` | 181 | `game/main.ts`, `game/scene.ts` | P1/P2 | F0 kostra, F2 | pevný krok `dt`, `rideNow` interpolace, `release()`, `WorldView.fit` → ortho kamera. Autopilot (attract) F3 |
+| `game/rattle_game.dart` | 181 | `game/main.ts`, `game/scene.ts`, `rules/autopilot.ts` | P1/P2 | **F2 hotovo** | pevný krok `dt`, `rideNow` interpolace, `release()`, `WorldView.fit` → ortho kamera. Autopilot (`_botTick`) za `?demo`; attract obrazovka F3 |
 | `game/ramp_component.dart` | 73 | `game/scene.ts` (`buildRamp`) | P2 | F0 hotovo bez loga | logo „U CHŘESTÝŠE“ na flatu: F3 (DynamicTexture nebo DOM) |
 | `game/cue_component.dart` | 57 | `game/scene.ts` (cue ring) | P2 | F0 hotovo | |
-| `game/skater_component.dart` | 343 | `game/skater.ts` | P2 | F2 | IK rig (stehno/holeň/paže), grab styly, flip roll/shove/tumble. V F0 jen panáček (deska + trup + hlava) |
+| `game/skater_component.dart` | 343 | `ui/skater-paint.ts` (Canvas 2D) + `game/skater.ts` (DynamicTexture na rovině) | P2 | **F2 hotovo** bez spritů | IK rig, všech 6 grab stylů, flip roll/shove/tumble, bail, ocas maskota. Hlava = kruh (fallback z Dartu), sprity hlav a decků F3 |
 | `game/style_paint.dart` | 118 | `game/styles.ts` | P2 | F3 | neon glow (GlowLayer nebo vlastní), komiks (ink outline), pixel (render do nižšího rozlišení, `hardwareScalingLevel`) |
 | `game/avatar_sprites.dart` | 35 | `game/sprites.ts` | P2 | F3 | hlavy a decky jako textury na rovinách, načíst až po první obrazovce |
 
@@ -67,12 +67,12 @@ CI (`web.yml`, job `golden`) vektory přegeneruje: `book`/`parser`/`scoring` mus
 | Dart | ř. | TS | Parita | Fáze | Poznámka |
 |---|---|---|---|---|---|
 | `ui/swipe_grid.dart` | 157 | `ui/swipe-pad.ts` | P0 (rozpoznání uzlů) / P2 | **F0 hotovo** | Pointer Events (dotyk i myš), hitRadius 0.36, doplnění přeskočeného uzlu, edge guard 18 px |
-| `ui/ride_screen.dart` | 343 | `ui/hud.ts`, `game/main.ts` (layout) | P2 | F0 kostra, F2 | skóre, streak, rychlost, popup, Δ ms, hint strip, trik dne |
-| `ui/pattern_painter.dart` | 73 | `ui/pattern.ts` (canvas 2D) | P2 | F2 | hinty a trick book |
+| `ui/ride_screen.dart` | 343 | `ui/hud.ts`, `rules/hints.ts`, `game/main.ts` (layout) | P2 | **F2 hotovo** | skóre, streak, rychlost, popup, Δ ms, hint strip, trik dne |
+| `ui/pattern_painter.dart` | 73 | `ui/pattern.ts` (canvas 2D) | P2 | **F2 hotovo** | hinty; animace prstem (`progress`) připravená pro trick book (F3) |
 | `ui/attract_screen.dart` | 186 | `ui/attract.ts` | P2 | F3 | úvod, Pro tlačítko, STYL přepínač |
 | `ui/avatar_screen.dart` | 286 | `ui/avatar.ts` | P2 | F3 | výběr postavy, 5 s odpočet |
 | `ui/trick_book_screen.dart` | 166 | `ui/trick-book.ts` | P2 | F3 | |
-| `ui/stat_card.dart` | 90 | `ui/stat-card.ts` | P2 | F2 | konec jízdy, 2 s ignorace dotyků |
+| `ui/stat_card.dart` | 90 | `ui/stat-card.ts` | P2 | **F2 hotovo** | konec jízdy, 2 s ignorace dotyků; klepnutí / mezerník = nová jízda (attract F3) |
 | `ui/theme.dart` | 159 | `ui/palette.ts` | P2 | F0 neon, F3 komiks + pixel | barvy přepsány ručně (viz Odchylky) |
 | `ui/tuning_panel.dart` | 85 | `ui/tuning.ts` za `?debug` | — | F3 | jen ladění, ukládání do localStorage |
 | `ui/app.dart` | 156 | `ui/app.ts` | P2 | F3 | přepínání obrazovek, idle timeout |
@@ -86,23 +86,23 @@ v F0 nevznikají. Stav **F** = Flutter (M0–M2), **W** = web. Složka videa: `S
 
 | id | Popis | Stav F | Stav W | Video |
 |---|---|---|---|---|
-| `ride` | Jízda v U-rampě coping → coping, rychlost roste s dobrými triky, bez triku klesá až do rolloutu | hotovo | F0 spike (fyzika segmentů 1:1) | `01-ride` |
-| `timing` | Rytmický kruh se stahuje na coping, release se hodnotí PERFECT / GOOD / LATE / MISS, Δ ms | hotovo | F0 spike | `02-timing` |
-| `swipe-grid` | Triky se kreslí tahem po mřížce 3×3 (dotyk i myš), přeskočený uzel se doplní | hotovo | F0 hotovo | `03-swipe-grid` |
-| `spins` | Otočky tahem po vnějším kruhu, směr = FS/BS, 180–1080 | hotovo | F1 pravidla, F2 obraz | `04-spins` |
-| `grabs` | Graby tahem přes střed, různé styly těla (tuck, tweak, stiff, split) | hotovo | F1/F2 | `05-grabs` |
-| `flips` | Flipy po diamantu, deska se točí (kickflip, heelflip, shove-it…) | hotovo | F1/F2 | `06-flips` |
-| `combos` | Řetězení spin + grab + flip v jednom tahu, delší trik = větší pump, nevejde-li se do airu → bail | hotovo | F1/F2 | `07-combos` |
-| `bail` | Pád při špatném načasování nebo neznámém tahu | hotovo | F0 spike (pád bez animace těla) | `08-bail` |
-| `scoring` | Body = báze × timing × rychlost × combo × variety + air, streak, nejlepší trik | hotovo | F1 | `09-scoring` |
-| `trick-of-day` | Trik dne za ×2, stejný pro všechny ten den | hotovo | F1/F3 | `10-trick-of-day` |
-| `pro-mode` | Pro režim: bez nápovědy, ×1,5 | hotovo | F3 | `11-pro-mode` |
-| `hints` | Pruh nápověd s tahy triků dostupných při aktuální rychlosti | hotovo | F2 | `12-hints` |
+| `ride` | Jízda v U-rampě coping → coping, rychlost roste s dobrými triky, bez triku klesá až do rolloutu | hotovo | F2 hotovo | `01-ride` |
+| `timing` | Rytmický kruh se stahuje na coping, release se hodnotí PERFECT / GOOD / LATE / MISS, Δ ms | hotovo | F2 hotovo | `02-timing` |
+| `swipe-grid` | Triky se kreslí tahem po mřížce 3×3 (dotyk i myš), přeskočený uzel se doplní | hotovo | F2 hotovo (+ klávesnice) | `03-swipe-grid` |
+| `spins` | Otočky tahem po vnějším kruhu, směr = FS/BS, 180–1080 | hotovo | F2 hotovo | `04-spins` |
+| `grabs` | Graby tahem přes střed, různé styly těla (tuck, tweak, stiff, split) | hotovo | F2 hotovo | `05-grabs` |
+| `flips` | Flipy po diamantu, deska se točí (kickflip, heelflip, shove-it…) | hotovo | F2 hotovo | `06-flips` |
+| `combos` | Řetězení spin + grab + flip v jednom tahu, delší trik = větší pump, nevejde-li se do airu → bail | hotovo | F2 hotovo | `07-combos` |
+| `bail` | Pád při špatném načasování nebo neznámém tahu | hotovo | F2 hotovo | `08-bail` |
+| `scoring` | Body = báze × timing × rychlost × combo × variety + air, streak, nejlepší trik | hotovo | F2 hotovo | `09-scoring` |
+| `trick-of-day` | Trik dne za ×2, stejný pro všechny ten den | hotovo | F2 hotovo | `10-trick-of-day` |
+| `pro-mode` | Pro režim: bez nápovědy, ×1,5 | hotovo | F2 za `?pro`, přepínač F3 | `11-pro-mode` |
+| `hints` | Pruh nápověd s tahy triků dostupných při aktuální rychlosti | hotovo | F2 hotovo | `12-hints` |
 | `trick-book` | Kniha triků se vzory tahů | hotovo | F3 | `13-trick-book` |
 | `avatars` | 8 postav (maskot Chřestýš s chřestítkem), 6 outfitů, 6 desek, výběr do 5 s | hotovo | F3 | `14-avatars` |
 | `art-styles` | Tři styly za běhu: neon, komiks, pixel | hotovo | F0 jen neon, F3 zbytek | `15-art-styles` |
 | `attract` | Úvodní smyčka s demo jezdcem, klepnutí spustí jízdu | hotovo | F3 | `16-attract` |
-| `stat-card` | Souhrn jízdy: skóre, landed, max streak, nejlepší trik, průměrné načasování | hotovo | F2 | `17-stat-card` |
+| `stat-card` | Souhrn jízdy: skóre, landed, max streak, nejlepší trik, průměrné načasování | hotovo | F2 hotovo | `17-stat-card` |
 | `web-play` | Hra v prohlížeči bez instalace, odkaz z olin.now (jen W) | — | F0 spike na `/play/` | `18-web-play` |
 
 ## Co se na webu vypouští
@@ -154,7 +154,7 @@ není v repu. CI repa pinuje Flutter 3.50.x, lokálně byl 3.47.9; velikost se m
 2. **Texty nejsou z ARB.** Flutter verze ARB nemá, texty jsou česky natvrdo ve widgetech
    (`ride_screen.dart` aj.). Web je zatím přebírá stejně; až Flutter přejde na ARB, web je převezme generátorem.
 3. ~~`spike-ride.ts` místo plného `RideSim`~~ (F0). V F1 nahrazeno plným portem, soubor smazán.
-   Od F1 hra pozná jen skutečné triky; neznámý tah = bail. Pruh nápověd přijde v F2.
+   Od F1 hra pozná jen skutečné triky; neznámý tah = bail. Pruh nápověd je od F2.
 4. **Shadery StandardMaterial jsou v hlavním bundlu** (import `Shaders/default.*`), ne líně: +31 kB gzip,
    ale o jeden round-trip dřív první snímek.
 5. **Na výšku (telefon) je swipe pad pod rampou**, ne vpravo jako na tabletu. Flutter verze je jen na šířku;
@@ -163,3 +163,11 @@ není v repu. CI repa pinuje Flutter 3.50.x, lokálně byl 3.47.9; velikost se m
    ne `DateTime`. Výsledek je stejný: Dart si z `DateTime` stejně bere jen místní rok, měsíc a den.
 7. **Parser vektory: tahy po mřížce do 5 kroků, ne do 6.** Do 6 kroků to bylo 4,4 MB; 5 kroků pokryje všechny
    chyby i krátké triky a delší vzory pokrývají řetězené sekvence a náhodné tahy (1,6 MB).
+8. **Skejťák se kreslí Canvas 2D do DynamicTexture na rovině**, ne jako síť. Kód kreslení je přepis
+   `paintSkater` 1:1 (stejné cesty, IK, styly), takže vzhled sedí a v F3 ho znovu použije výběr postavy.
+   Neonová záře přes `shadowBlur` místo `MaskFilter.blur`.
+9. **Ovládání klávesnicí** (jen web): fyzický blok Q W E / A S D / Z X C nebo numerická klávesnice skládá tah,
+   mezerník / Enter ho pustí, Esc smaže. Pustit = okamžik releasu, jako zvednutí prstu.
+10. **`?pro` a `?demo` už v F2.** `?pro` skryje nápovědy a násobí ×1,5 (přepínač na úvodní obrazovce v F3).
+   `?demo` pustí autopilota z attract módu: jízdy běží dokola, vstup se ignoruje. Slouží i pro záznam videí.
+11. **`rules/avatar.ts` už v F2** (plán F3): rig potřebuje barvy outfitu. Výběr postavy zůstává v F3.

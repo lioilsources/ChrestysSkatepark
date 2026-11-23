@@ -1,5 +1,5 @@
 // Babylon scene: orthographic side view of the U-ramp (same framing as WorldView.fit
-// in rattle_game.dart), flat emissive shapes on the z = 0 plane, skater rig and cue ring.
+// in rattle_game.dart), flat emissive shapes on the z = 0 plane, skater sprite and cue ring.
 import { Engine } from '@babylonjs/core/Engines/engine';
 import { Scene } from '@babylonjs/core/scene';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
@@ -7,19 +7,19 @@ import { Camera } from '@babylonjs/core/Cameras/camera';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import type { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { CreateRibbon } from '@babylonjs/core/Meshes/Builders/ribbonBuilder';
 import { CreateDisc } from '@babylonjs/core/Meshes/Builders/discBuilder';
-import { CreatePlane } from '@babylonjs/core/Meshes/Builders/planeBuilder';
 import { CreateTorus } from '@babylonjs/core/Meshes/Builders/torusBuilder';
 // Bundle the StandardMaterial shaders up front: saves a lazy-load round trip before the first frame.
 import '@babylonjs/core/Shaders/default.vertex';
 import '@babylonjs/core/Shaders/default.fragment';
 
+import type { Avatar } from '../rules/avatar';
 import type { RideSim } from '../rules/ride-sim';
 import { worldBounds } from '../rules/ride-sim';
 import { NEON } from '../ui/palette';
+import { SkaterSprite } from './skater';
 
 const flat = (scene: Scene, hex: string, alpha = 1): StandardMaterial => {
   const m = new StandardMaterial(hex, scene);
@@ -36,14 +36,12 @@ export interface WorldRect { left: number; top: number; width: number; height: n
 export class RampScene {
   readonly scene: Scene;
   private readonly camera: FreeCamera;
-  private readonly skater: TransformNode;
-  private readonly body: TransformNode;
-  private readonly torso: Mesh;
+  private readonly skater: SkaterSprite;
   private readonly cueTarget: Mesh;
   private readonly cueRing: Mesh;
   private readonly cueMat: StandardMaterial;
 
-  constructor(readonly engine: Engine, private readonly ride: RideSim) {
+  constructor(readonly engine: Engine, private readonly ride: RideSim, avatar: Avatar) {
     const scene = (this.scene = new Scene(engine));
     scene.clearColor = Color4.FromHexString(`${NEON.night}FF`);
     scene.skipPointerMovePicking = true;
@@ -55,21 +53,7 @@ export class RampScene {
 
     this.buildRamp();
 
-    // Skater rig: root at the board contact point, local +y = up for the skater.
-    this.skater = new TransformNode('skater', scene);
-    const board = CreatePlane('board', { width: 0.82, height: 0.07 }, scene);
-    board.material = flat(scene, NEON.board);
-    board.parent = this.skater;
-    board.position.set(0, 0.1, -0.02);
-    this.body = new TransformNode('body', scene);
-    this.body.parent = this.skater;
-    this.torso = CreatePlane('torso', { width: 0.26, height: 1 }, scene);
-    this.torso.material = flat(scene, NEON.skater);
-    this.torso.parent = this.body;
-    const head = CreateDisc('head', { radius: 0.17, tessellation: 24 }, scene);
-    head.material = flat(scene, NEON.skater);
-    head.parent = this.body;
-    head.position.set(0.04, 1.32, -0.01);
+    this.skater = new SkaterSprite(scene, avatar);
 
     // Cue: a ring that shrinks onto the coping (cue_component.dart).
     this.cueTarget = CreateTorus('cueTarget', { diameter: 0.68, thickness: 0.05, tessellation: 48 }, scene);
@@ -147,15 +131,7 @@ export class RampScene {
   /** Copy sim state into the scene for this frame. */
   sync(): void {
     const ride = this.ride;
-    const p = ride.pose;
-    this.skater.position.set(p.x, p.y, -0.05);
-    this.skater.rotation.z = p.angle;
-    // Spin = horizontal squash of the rig; facing sign mirrors it.
-    this.skater.scaling.x = Math.abs(p.facing) < 0.05 ? 0.05 * Math.sign(p.facing || 1) : p.facing;
-    const tall = 1 - 0.45 * p.crouch;
-    this.torso.scaling.y = tall;
-    this.torso.position.set(0, 0.14 + tall / 2, -0.01);
-    this.body.rotation.z = -p.bail * 1.4;
+    this.skater.sync(ride.pose);
 
     // Cue ring (hidden while airborne or once a release is judged).
     const tte = ride.timeToEdge;
