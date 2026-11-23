@@ -17,4 +17,9 @@ describe('ride config is generated from Dart', () => {
     const src = readFileSync(fileURLToPath(new URL('../src/rules/generated/ride-config.ts', import.meta.url)), 'utf8');
     expect(src.startsWith('// GENERATED')).toBe(true);
   });
+
+  it('tricks.json is a byte copy of rattleramp/assets/tricks.json (run `npm run gen` if not)', () => {
+    const read = (rel: string): string => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
+    expect(read('../src/rules/generated/tricks.json')).toBe(read('../../rattleramp/assets/tricks.json'));
+  });
 });

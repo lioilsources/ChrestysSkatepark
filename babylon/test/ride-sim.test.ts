@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { defaultConfig, launchVelocity } from '../src/rules/ride-config';
-import { SpikeRide, type RideEvent } from '../src/rules/spike-ride';
+import { RideSim, type RideEvent } from '../src/rules/ride-sim';
+import { defaultBook } from '../src/rules/trick-defs';
+import { TrickParser } from '../src/rules/trick-parser';
 
-const run = (release: (r: SpikeRide) => number | null, segments = 6): { ride: SpikeRide; events: RideEvent[] } => {
-  const ride = new SpikeRide(defaultConfig());
+const parser = new TrickParser(defaultBook());
+const INDY = [3, 4, 5];
+
+const run = (release: (r: RideSim) => number | null, segments = 6, nodes: number[] = INDY): { ride: RideSim; events: RideEvent[] } => {
+  const ride = new RideSim(defaultConfig(), parser);
   const events: RideEvent[] = [];
   let seg = -1;
   let n = 0;
@@ -12,7 +17,7 @@ const run = (release: (r: SpikeRide) => number | null, segments = 6): { ride: Sp
       seg = ride.segStart;
       n++;
       const t = release(ride);
-      if (t !== null) ride.addInput({ t, nodes: [0, 1, 2] });
+      if (t !== null) ride.addInput({ t, nodes });
     }
     ride.step();
     events.push(...ride.drainEvents());
@@ -20,9 +25,9 @@ const run = (release: (r: SpikeRide) => number | null, segments = 6): { ride: Sp
   return { ride, events };
 };
 
-describe('SpikeRide (segment physics of ride_sim.dart)', () => {
+describe('RideSim (sanity checks; parity is in golden.test.ts)', () => {
   it('rolls coping to coping and airs for 2·v/g', () => {
-    const ride = new SpikeRide(defaultConfig());
+    const ride = new RideSim(defaultConfig(), parser);
     const c = defaultConfig();
     expect(ride.airDuration).toBeCloseTo((2 * launchVelocity(c, c.startSpeed)) / c.gravity, 12);
     expect(ride.tEdge).toBeGreaterThan(c.dropInDelay);
@@ -43,7 +48,8 @@ describe('SpikeRide (segment physics of ride_sim.dart)', () => {
     const judged = events.filter((e) => e.type === 'judged');
     expect(judged.length).toBe(4);
     expect(judged.every((e) => e.type === 'judged' && e.timing === 'perfect')).toBe(true);
-    expect(ride.landed).toBe(4);
+    expect(ride.stats.landed).toBe(4);
+    expect(ride.stats.score).toBeGreaterThan(0);
   });
 
   it('a late release outside the window bails', () => {
@@ -57,5 +63,16 @@ describe('SpikeRide (segment physics of ride_sim.dart)', () => {
     const b = run((r) => r.tEdge + 0.02);
     expect(a.ride.time).toBe(b.ride.time);
     expect(a.events).toEqual(b.events);
+  });
+
+  it('an unknown pattern bails with badPattern', () => {
+    const { ride, events } = run((r) => r.tEdge, 1, [0, 4, 0]);
+    expect(events.find((e) => e.type === 'judged')).toMatchObject({ trick: null, parseError: 'unknownGrab' });
+    expect(ride.bailReason).toBe('badPattern');
+  });
+
+  it('an odd number of half spins flips the stance', () => {
+    const { ride } = run((r) => r.tEdge, 1, [1, 2, 5, 8]); // FS 180
+    expect(ride.stance).toBe(-1);
   });
 });

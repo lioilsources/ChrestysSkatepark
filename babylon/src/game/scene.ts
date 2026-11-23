@@ -17,8 +17,8 @@ import { CreateTorus } from '@babylonjs/core/Meshes/Builders/torusBuilder';
 import '@babylonjs/core/Shaders/default.vertex';
 import '@babylonjs/core/Shaders/default.fragment';
 
-import type { SpikeRide } from '../rules/spike-ride';
-import { worldBounds } from '../rules/spike-ride';
+import type { RideSim } from '../rules/ride-sim';
+import { worldBounds } from '../rules/ride-sim';
 import { NEON } from '../ui/palette';
 
 const flat = (scene: Scene, hex: string, alpha = 1): StandardMaterial => {
@@ -43,7 +43,7 @@ export class RampScene {
   private readonly cueRing: Mesh;
   private readonly cueMat: StandardMaterial;
 
-  constructor(readonly engine: Engine, private readonly ride: SpikeRide) {
+  constructor(readonly engine: Engine, private readonly ride: RideSim) {
     const scene = (this.scene = new Scene(engine));
     scene.clearColor = Color4.FromHexString(`${NEON.night}FF`);
     scene.skipPointerMovePicking = true;

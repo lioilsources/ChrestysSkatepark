@@ -2,11 +2,11 @@
 
 Webový klient RattleRamp v TypeScriptu nad Babylon.js. Zdroj pravdy je Flutter projekt
 `../rattleramp/` (pravidla v `lib/core/`). Plán: `DevConventions/Prompts/06-PLAN-babylon-web.md`.
-Stav: **F0 (audit + spike)**. Hostování: GitHub Pages repa, hra pod `/play/`.
+Stav: **F1 (pravidla) hotovo**, další F2 (scéna a ovládání). Hostování: GitHub Pages repa, hra pod `/play/`.
 
 ## Úrovně parity
 
-- **P0** – diskrétní pravidla, shoda bit po bitu přes zlaté vektory z Dartu (`tool/dump_vectors.dart` → `test/golden/`, F1).
+- **P0** – diskrétní pravidla, shoda bit po bitu přes zlaté vektory z Dartu (`tool/dump_vectors.dart` → `test/golden/`).
 - **P1** – spojitá fyzika: ±5 % ve scénářích (časy hran, délky airu, rychlost po N segmentech).
 - **P2** – vzhled: stejný výchozí pohled (ortografický bok rampy), barvy, rozložení. Ne pixel po pixelu.
 
@@ -30,14 +30,26 @@ Stav: **F0 (audit + spike)**. Hostování: GitHub Pages repa, hra pod `/play/`.
 | `core/grid.dart` | 68 | `rules/grid.ts` | P0 | **F0 hotovo** | 1:1, testy `test/grid.test.ts` |
 | `core/ramp.dart` | 61 | `rules/ramp.ts` | P1 | **F0 hotovo** | 1:1, testy `test/ramp.test.ts` |
 | `core/ride_config.dart` | 113 | `rules/ride-config.ts` + `rules/generated/ride-config.ts` | P0 | **F0 hotovo** | výchozí hodnoty generuje `npm run gen` z Dartu, `test/config-sync.test.ts` hlídá rozjezd |
-| `core/ride_sim.dart` | 567 | `rules/ride-sim.ts` | P0 (události, časování, skóre) + P1 (dráha, póza) | F1 | v F0 jen `rules/spike-ride.ts`: segmenty, tabulka vzdáleností, air, posouzení releasu, pózy bez triků. Nahradí ho plný port |
-| `core/trick_defs.dart` | 237 | `rules/trick-defs.ts` | P0 | F1 | `assets/tricks.json` se kopíruje beze změny (generátor/`public/`), daily trick musí dát stejný den → stejný trik |
-| `core/trick_parser.dart` | 110 | `rules/trick-parser.ts` | P0 | F1 | zlaté vektory: všechny řetězitelné ≤3-tokenové sekvence (>10k vzorů, jako `test/trick_parser_test.dart`) |
-| `core/scoring.dart` | 72 | `rules/scoring.ts` | P0 | F1 | vektory: rozpad bodů pro sadu (trik, timing, rychlost, combo, variety, pro, daily) |
+| `core/ride_sim.dart` | 567 | `rules/ride-sim.ts` | P0 (události, časování, skóre) + P1 (dráha, póza) | **F1 hotovo** | 1:1 včetně póz triků a `replayJson()`; F0 `spike-ride.ts` smazán |
+| `core/trick_defs.dart` | 237 | `rules/trick-defs.ts` | P0 | **F1 hotovo** | `npm run gen` kopíruje `assets/tricks.json` bajt po bajtu do `rules/generated/`; trik dne ověřen na 10 letech dní |
+| `core/trick_parser.dart` | 110 | `rules/trick-parser.ts` | P0 | **F1 hotovo** | vektory: všechny tahy po mřížce do 5 kroků, všechny řetězitelné ≤3-tokenové sekvence, 3000 dlouhých náhodných |
+| `core/scoring.dart` | 72 | `rules/scoring.ts` | P0 | **F1 hotovo** | 1500 rozpadů bodů; zaokrouhlení jako Dart `round()` (`dartRound`) |
 | `core/avatar.dart` | 74 | `rules/avatar.ts` | P0 | F3 | presety, outfity, decky; barvy ARGB int → CSS přes helper v `ui/` |
 
-Zlaté vektory (F1): `tool/dump_vectors.dart` spustí parser, scoring a `RideSim` nad pevnými vstupy
-(replay JSON, `RideSim.replayJson()`) a vypíše události + stav po každém segmentu. Vitest je přehraje.
+### Zlaté vektory
+
+`cd rattleramp && dart run tool/dump_vectors.dart` zapíše do `babylon/test/golden/`, `test/golden.test.ts` je přehraje:
+
+| Soubor | Obsah | Shoda |
+|---|---|---|
+| `book.json` | všechny tokeny (cesty, looky), cesty komb, stupně 0–40 tahů, trik dne 2024–2033 | přesná |
+| `parser.json` | ~46k vzorů → tokeny / kombo / chyba | přesná |
+| `scoring.json` | 1500 vstupů (trik, timing, rychlost i mimo 0–1, streak, opakování, air, pro, daily) → rozpad | přesná |
+| `rides.json` | 25 jízd skriptovaného hráče (seed, různé `startSpeed`, `windowScale`, `inputLatency`, `cueLead`, pro, daily): replay, všechny události, stav na začátku každého segmentu, statistiky; u 7 jízd póza každý 5. tik | diskrétní přesně, čísla ±1e-9 |
+
+Pokrytí: všechny typy událostí, všechny důvody bailu i všechna hodnocení (test to hlídá).
+CI (`web.yml`, job `golden`) vektory přegeneruje: `book`/`parser`/`scoring` musí sedět bajt po bajtu, `rides.json`
+(sin/cos/exp se mezi platformami může lišit v posledním bitu) se ověří přehráním v TS s tolerancí.
 
 ### `lib/game/` (Flame, 807 ř.) → `src/game/`
 
@@ -141,9 +153,13 @@ není v repu. CI repa pinuje Flutter 3.50.x, lokálně byl 3.47.9; velikost se m
    který čte `styleSpecs` z `theme.dart` (stejně jako `gen-config.ts` čte `ride_config.dart`).
 2. **Texty nejsou z ARB.** Flutter verze ARB nemá, texty jsou česky natvrdo ve widgetech
    (`ride_screen.dart` aj.). Web je zatím přebírá stejně; až Flutter přejde na ARB, web je převezme generátorem.
-3. **`spike-ride.ts` místo plného `RideSim`** v F0: bez parseru a skóre je každý tah ≥3 uzly „trik“.
-   Fyzika segmentů, časová okna a pózy jsou ale přepsané 1:1, aby šel porovnat feel. V F1 soubor zmizí.
+3. ~~`spike-ride.ts` místo plného `RideSim`~~ (F0). V F1 nahrazeno plným portem, soubor smazán.
+   Od F1 hra pozná jen skutečné triky; neznámý tah = bail. Pruh nápověd přijde v F2.
 4. **Shadery StandardMaterial jsou v hlavním bundlu** (import `Shaders/default.*`), ne líně: +31 kB gzip,
    ale o jeden round-trip dřív první snímek.
 5. **Na výšku (telefon) je swipe pad pod rampou**, ne vpravo jako na tabletu. Flutter verze je jen na šířku;
    web se otevře i na telefonu, takže layout na výšku je navíc.
+6. **Trik dne bere kalendářní den jako tři čísla** (`dailyToken(book, y, m, d)` + `dailyTokenFor(book, Date)`),
+   ne `DateTime`. Výsledek je stejný: Dart si z `DateTime` stejně bere jen místní rok, měsíc a den.
+7. **Parser vektory: tahy po mřížce do 5 kroků, ne do 6.** Do 6 kroků to bylo 4,4 MB; 5 kroků pokryje všechny
+   chyby i krátké triky a delší vzory pokrývají řetězené sekvence a náhodné tahy (1,6 MB).
