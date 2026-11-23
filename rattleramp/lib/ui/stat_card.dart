@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/ride_sim.dart';
+import '../l10n/app_localizations.dart';
 import 'theme.dart';
 
 /// End-of-ride summary. Taps are ignored for the first 2 s so a late swipe
@@ -43,6 +44,7 @@ class _StatCardState extends State<StatCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l = L10n.of(context);
     final s = widget.stats;
     Widget row(String k, String v) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -67,20 +69,20 @@ class _StatCardState extends State<StatCard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              widget.bailed ? 'BAIL!' : 'KONEC JÍZDY',
+              widget.bailed ? 'BAIL!' : l.rideOver,
               style: hudStyle.copyWith(fontSize: 28, color: widget.bailed ? Palette.miss : Palette.dim),
             ),
             Text('${s.score}', style: hudStyle.copyWith(fontSize: 88, color: Palette.rampEdge)),
             const SizedBox(height: 12),
-            row('NEJLEPŠÍ TRIK', s.bestTrick == null ? '–' : '${s.bestTrick}  (${s.bestTrickPoints})'),
-            row('NEJDELŠÍ COMBO', '${s.maxStreak}'),
-            row('TRIKŮ', '${s.landed}'),
-            row('PRŮMĚRNÝ TIMING', _timingLabel),
+            row(l.bestTrick, s.bestTrick == null ? '–' : '${s.bestTrick}  (${s.bestTrickPoints})'),
+            row(l.longestCombo, '${s.maxStreak}'),
+            row(l.tricksLanded, '${s.landed}'),
+            row(l.avgTiming, _timingLabel),
             const SizedBox(height: 24),
             AnimatedOpacity(
               opacity: _armed ? 1 : 0,
               duration: const Duration(milliseconds: 300),
-              child: Text('TAPNI PRO POKRAČOVÁNÍ', style: hudStyle.copyWith(fontSize: 18, color: Palette.dim)),
+              child: Text(l.tapToContinue, style: hudStyle.copyWith(fontSize: 18, color: Palette.dim)),
             ),
           ],
         ),

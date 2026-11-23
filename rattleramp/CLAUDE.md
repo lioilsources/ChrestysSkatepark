@@ -76,4 +76,5 @@ Windows shrink with speed. `inputLatency` is subtracted from release time (tune 
   time, check `/queue`; GPU only under a broker lease, e.g. `sparkctl lease <projekt> comfyui,flux-schnell <min>`) → `assets/sprites/{heads,decks}/`. Check with
   `SNAP_DIR=/tmp/x flutter test test/avatar_sheet_test.dart`.
 - Tuning panel: 3 s long-press top-left corner on attract. In-memory only, no PIN yet (M4).
+- l10n: gen-l10n from `lib/l10n/app_cs.arb` (45 langs, output committed); store texts `../fastlane/metadata/`.
 - `dart format -l 120`.

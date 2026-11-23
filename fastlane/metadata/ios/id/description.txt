@@ -1,0 +1,10 @@
+RattleRamp adalah game skate 2D di U-ramp. Gambar trik dengan satu jari di kisi 3×3 dan lepaskan tepat saat skater menyentuh coping.
+
+• Menyusuri tepi = spin, lewat tengah = grab, belah ketupat = flip
+• Sambung trik dalam satu tarikan menjadi combo – McTwist, Rodeo, 540 Japan, dan lainnya
+• Trick book dengan pola animasi untuk setiap grab, flip, dan spin
+• Trik hari ini bernilai dua kali lipat, mode Pro ×1,5 tanpa petunjuk
+• 8 skater, pakaian, dan grafis papan, termasuk maskot ular derik
+• Tiga gaya: neon, komik, dan piksel
+
+Dibuat untuk tablet di bar U Chřestýše di samping skatepark – satu putaran cepat sambil menunggu bir dituang.

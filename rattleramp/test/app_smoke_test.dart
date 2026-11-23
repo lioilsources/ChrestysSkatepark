@@ -14,7 +14,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(RattleApp(book: book));
+      await tester.pumpWidget(RattleApp(book: book, locale: const Locale('cs')));
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('TAPNI A JEĎ'), findsOneWidget);
 

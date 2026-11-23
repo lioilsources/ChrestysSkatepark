@@ -4,6 +4,7 @@ import '../core/avatar.dart';
 import '../core/ride_sim.dart';
 import '../game/avatar_sprites.dart';
 import '../game/skater_component.dart';
+import '../l10n/app_localizations.dart';
 import 'theme.dart';
 
 /// Quick avatar pick between attract and the ride: tap a character and go.
@@ -74,7 +75,7 @@ class _AvatarScreenState extends State<AvatarScreen> with SingleTickerProviderSt
                         IconButton(iconSize: 36, onPressed: widget.onBack, icon: const Icon(Icons.arrow_back)),
                         Expanded(
                           child: Text(
-                            avatar.preset.name.toUpperCase(),
+                            presetName(L10n.of(context), avatar.preset).toUpperCase(),
                             style: hudStyle.copyWith(fontSize: 30, color: Palette.rampEdge),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -192,7 +193,8 @@ class _HeadCard extends StatelessWidget {
         child: Image.asset(
           'assets/sprites/heads/${preset.id}.png',
           fit: BoxFit.contain,
-          errorBuilder: (context, _, _) => Center(child: Text(preset.name, style: hudStyle.copyWith(fontSize: 14))),
+          errorBuilder: (context, _, _) =>
+              Center(child: Text(presetName(L10n.of(context), preset), style: hudStyle.copyWith(fontSize: 14))),
         ),
       ),
     );
@@ -277,10 +279,22 @@ class _GoButton extends StatelessWidget {
               ),
             ),
             alignment: Alignment.center,
-            child: Text('JEĎ!  $left', style: hudStyle.copyWith(fontSize: 28, color: Palette.coping)),
+            child: Text(
+              L10n.of(context).goCountdown(left),
+              style: hudStyle.copyWith(fontSize: 28, color: Palette.coping),
+            ),
           );
         },
       ),
     );
   }
 }
+
+/// Display name of a preset; Czech nicknames are translated, proper names stay.
+String presetName(L10n l, AvatarPreset p) => switch (p.id) {
+  'beanie' => l.avatarBeanie,
+  'dreads' => l.avatarDreads,
+  'helmet' => l.avatarHelmet,
+  'kid' => l.avatarKid,
+  _ => p.name,
+};

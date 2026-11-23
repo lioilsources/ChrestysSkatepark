@@ -1,0 +1,102 @@
+{
+  "@@locale": "cs",
+  "tapToRide": "TAPNI A JEĎ",
+  "@tapToRide": {
+    "description": "Attract screen call to action (tap anywhere to start)."
+  },
+  "dailyTrick": "TRIK DNE: {trick} ×2",
+  "@dailyTrick": {
+    "description": "Trick of the day banner; the trick scores double.",
+    "placeholders": {
+      "trick": {
+        "type": "String"
+      }
+    }
+  },
+  "proButton": "PRO ×1,5",
+  "@proButton": {
+    "description": "Button that starts a Pro ride (score ×1.5, no hints)."
+  },
+  "styleButton": "STYL: {style}",
+  "@styleButton": {
+    "description": "Art style switch button.",
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "styleNeon": "NEON",
+  "styleComic": "KOMIKS",
+  "stylePixel": "PIXEL",
+  "goCountdown": "JEĎ!  {seconds}",
+  "@goCountdown": {
+    "description": "Avatar picker start button with countdown seconds.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "wrongTrick": "ŠPATNÝ TRIK",
+  "tooEarly": "MOC BRZY",
+  "waitForCircle": "počkej na kruh",
+  "@waitForCircle": {
+    "description": "Released too early: wait for the timing circle to reach the coping."
+  },
+  "noTrick": "BEZ TRIKU",
+  "losingSpeed": "ztrácíš rychlost",
+  "bailTiming": "špatné načasování",
+  "bailUnknown": "neznámý trik",
+  "bailTooLong": "trik se nevešel do airu",
+  "@bailTooLong": {
+    "description": "Bail reason: the drawn trick was longer than the remaining airtime."
+  },
+  "outOfSpeed": "DOŠLA RYCHLOST",
+  "rideOver": "KONEC JÍZDY",
+  "bestTrick": "NEJLEPŠÍ TRIK",
+  "longestCombo": "NEJDELŠÍ COMBO",
+  "tricksLanded": "TRIKŮ",
+  "@tricksLanded": {
+    "description": "Stat card label: number of landed tricks."
+  },
+  "avgTiming": "PRŮMĚRNÝ TIMING",
+  "tapToContinue": "TAPNI PRO POKRAČOVÁNÍ",
+  "tabGrabs": "GRABY",
+  "tabFlips": "FLIPY",
+  "tabSpins": "SPINY",
+  "tabCombos": "KOMBA",
+  "trickBookHelp": "Po obvodu = spin (po směru hodin FS, proti BS) · přes střed = grab · kosočtverec = flip. Spoj triky jedním tahem – další začíná tam, kde předchozí skončil. Pusť prst, když kruh dosedne na hranu.",
+  "@trickBookHelp": {
+    "description": "Explains the 3x3 swipe grammar. FS/BS stay as-is."
+  },
+  "spinNote": "začni kdekoli na okraji",
+  "pointsShort": "{points} b",
+  "@pointsShort": {
+    "description": "Points abbreviation on trick cards.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "tuningTitle": "LADĚNÍ (M0)",
+  "@tuningTitle": {
+    "description": "Hidden staff tuning panel title."
+  },
+  "tuningWindow": "Šířka timing okna",
+  "tuningLatency": "Latence dotyku",
+  "tuningStartSpeed": "Startovní rychlost",
+  "tuningCueLead": "Předstih kruhu",
+  "tuningDeltaHelp": "Δ v pravém horním rohu jízdy = odchylka posledního puštění od hrany (− brzy, + pozdě).",
+  "@tuningDeltaHelp": {
+    "description": "Explains the Δ ms readout in the ride's top-right corner."
+  },
+  "avatarBeanie": "Kulich",
+  "avatarDreads": "Dready",
+  "avatarHelmet": "Helma",
+  "avatarKid": "Prcek",
+  "@avatarKid": {
+    "description": "Avatar preset name: a small kid skater."
+  }
+}

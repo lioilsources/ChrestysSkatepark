@@ -13,6 +13,7 @@ import 'app.dart';
 import 'pattern_painter.dart';
 import 'stat_card.dart';
 import 'swipe_grid.dart';
+import '../l10n/app_localizations.dart';
 import 'theme.dart';
 
 class RideScreen extends StatefulWidget {
@@ -87,37 +88,38 @@ class _RideScreenState extends State<RideScreen> {
   }
 
   void _onEvent(RideEvent e) {
+    final l = L10n.of(context);
     setState(() {
       switch (e.type) {
         case RideEventType.judged:
           lastDeltaMs = e.delta! * 1000;
           if (e.trick == null) {
-            _show('ŠPATNÝ TRIK', color: Palette.miss);
+            _show(l.wrongTrick, color: Palette.miss);
           } else {
             _show(_timingLabel(e.timing!), small: e.trick!.name, color: _timingColor(e.timing!));
           }
         case RideEventType.tooEarly:
-          _show('MOC BRZY', small: 'počkej na kruh', color: Palette.dim);
+          _show(l.tooEarly, small: l.waitForCircle, color: Palette.dim);
         case RideEventType.landed:
           score = game.sim.stats.score;
           streak = game.sim.stats.streak;
           _show('+${e.score!.total}', small: e.trick!.name, color: _timingColor(e.timing!));
           _refreshHints();
         case RideEventType.emptyAir:
-          _show('BEZ TRIKU', small: 'ztrácíš rychlost', color: Palette.dim);
+          _show(l.noTrick, small: l.losingSpeed, color: Palette.dim);
         case RideEventType.bail:
           streak = 0;
           _show(
             'BAIL!',
             small: switch (e.bailReason!) {
-              BailReason.timingMiss => 'špatné načasování',
-              BailReason.badPattern => 'neznámý trik',
-              BailReason.trickTooLong => 'trik se nevešel do airu',
+              BailReason.timingMiss => l.bailTiming,
+              BailReason.badPattern => l.bailUnknown,
+              BailReason.trickTooLong => l.bailTooLong,
             },
             color: Palette.miss,
           );
         case RideEventType.outOfSpeed:
-          _show('DOŠLA RYCHLOST', color: Palette.dim);
+          _show(l.outOfSpeed, color: Palette.dim);
         case RideEventType.finished:
           break;
       }
@@ -188,7 +190,7 @@ class _RideScreenState extends State<RideScreen> {
                 right: 20,
                 top: 14,
                 child: Text(
-                  'TRIK DNE: ${widget.daily.name} ×2${lastDeltaMs == null ? '' : '   Δ ${lastDeltaMs!.round()} ms'}',
+                  '${L10n.of(context).dailyTrick(widget.daily.name)}${lastDeltaMs == null ? '' : '   Δ ${lastDeltaMs!.round()} ms'}',
                   style: hudStyle.copyWith(fontSize: 14, color: Palette.dim),
                 ),
               ),

@@ -1,0 +1,10 @@
+RattleRamp, U-rampada geçen 2D bir kaykay oyunu. Hareketleri tek parmakla 3×3 bir ızgaraya çiz ve kaykaycın kenara değdiği anda bırak.
+
+• Kenar boyunca = spin, ortadan = grab, eşkenar dörtgen = flip
+• Hareketleri tek çizgide kombolara bağla – McTwist, Rodeo, 540 Japan ve daha fazlası
+• Her grab, flip ve spin için animasyonlu desen içeren trick book
+• Günün hareketi çift puan, ipucusuz Pro modu ×1,5
+• Çıngıraklı yılan maskot dahil 8 kaykaycı, kıyafet ve kaykay grafikleri
+• Üç stil: neon, çizgi roman ve piksel
+
+Skatepark'ın yanındaki U Chřestýše barının tableti için yapıldı – biran doldurulurken hızlı bir tur.

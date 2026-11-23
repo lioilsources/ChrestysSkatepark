@@ -1,0 +1,10 @@
+RattleRamp is een 2D-skategame op een U-ramp. Teken trucs met één vinger op een raster van 3×3 en laat precies los wanneer je rijder de coping raakt.
+
+• Langs de rand = spin, door het midden = grab, de ruit = flip
+• Rijg trucs in één streek aan elkaar tot combo's – McTwist, Rodeo, 540 Japan en meer
+• Trick book met een geanimeerd patroon voor elke grab, flip en spin
+• De truc van de dag telt dubbel, Pro-modus ×1,5 zonder hints
+• 8 rijders, outfits en deckgraphics, inclusief de ratelslang-mascotte
+• Drie stijlen: neon, strip en pixel
+
+Gemaakt voor de tablet in bar U Chřestýše naast het skatepark – een snelle rit terwijl je bier getapt wordt.

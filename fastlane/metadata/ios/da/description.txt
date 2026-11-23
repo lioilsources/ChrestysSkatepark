@@ -1,0 +1,10 @@
+RattleRamp er et 2D-skatespil på en U-rampe. Tegn tricks med én finger på et 3×3-gitter og slip præcis, når din rytter rammer copingen.
+
+• Langs kanten = spin, gennem midten = grab, romben = flip
+• Sæt tricks sammen i ét strøg til combos – McTwist, Rodeo, 540 Japan og flere
+• Trick book med et animeret mønster for hvert grab, flip og spin
+• Dagens trick giver dobbelt point, Pro-tilstand ×1,5 uden hints
+• 8 ryttere, outfits og deck-grafik, inklusive klapperslange-maskotten
+• Tre stilarter: neon, tegneserie og pixel
+
+Lavet til tabletten i baren U Chřestýše ved skateparken – en hurtig tur, mens din øl bliver tappet.

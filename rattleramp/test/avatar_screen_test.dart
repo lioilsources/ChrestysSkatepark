@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rattleramp/core/avatar.dart';
 import 'package:rattleramp/game/avatar_sprites.dart';
+import 'package:rattleramp/l10n/app_localizations.dart';
 import 'package:rattleramp/ui/avatar_screen.dart';
 
 void main() {
@@ -21,6 +22,8 @@ void main() {
     Avatar? went;
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: L10n.localizationsDelegates,
+        supportedLocales: L10n.supportedLocales,
         home: AvatarScreen(initial: Avatar.initial, sprites: AvatarSprites.empty, onGo: (a) => went = a, onBack: () {}),
       ),
     );
