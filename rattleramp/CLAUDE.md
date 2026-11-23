@@ -26,6 +26,8 @@ lib/ui/     Flutter screens: attract, ride (HUD, hints, SwipeGrid), trick book, 
 assets/tricks.json   trick definitions
 ```
 
+Web port (Babylon.js, `../babylon/`, live at `/play/` on the repo's GitHub Pages): see `../docs/babylon.md`; after changing `lib/core/` run `dart run tool/dump_vectors.dart` and commit `../babylon/test/golden/`.
+
 ## Commands
 
 ```bash
