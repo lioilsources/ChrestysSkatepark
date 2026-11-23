@@ -4,8 +4,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "predev": "npm run assets",
     "dev": "vite",
     "gen": "tsx scripts/gen-config.ts",
+    "assets": "tsx scripts/copy-assets.ts",
+    "prebuild": "npm run assets",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",

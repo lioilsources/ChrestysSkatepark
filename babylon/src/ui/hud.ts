@@ -2,13 +2,11 @@
 // trick of the day + Δ, popups (timing, points, bail reason) and the hint strip.
 import type { Hint } from '../rules/hints';
 import type { BailReason, RideEvent, Timing } from '../rules/ride-sim';
-import { NEON } from './palette';
+import { pal } from './palette';
 import { patternCanvas } from './pattern';
 
 const TIMING_LABEL: Record<Timing, string> = { perfect: 'PERFECT', good: 'GOOD', late: 'LATE', miss: 'MISS' };
-const TIMING_COLOR: Record<Timing, string> = {
-  perfect: NEON.perfect, good: NEON.good, late: NEON.late, miss: NEON.miss,
-};
+const timingColor = (t: Timing): string => pal()[t];
 const BAIL_TEXT: Record<BailReason, string> = {
   timingMiss: 'špatné načasování', badPattern: 'neznámý trik', trickTooLong: 'trik se nevešel do airu',
 };
@@ -38,10 +36,14 @@ export class Hud {
   private shown = { score: -1, streak: -1, speed: -1 };
 
   /** dailyName: "trik dne" shown with the last Δ, as in ride_screen.dart. */
-  constructor(private readonly dailyName: string, pro: boolean) {
+  constructor(private readonly dailyName: string) {
+    this.reset();
+  }
+
+  /** Pro: PRO badge, no hint strip. */
+  setPro(pro: boolean): void {
     byId('pro').hidden = !pro;
     this.hints.hidden = pro;
-    this.reset();
   }
 
   reset(): void {
@@ -61,7 +63,7 @@ export class Hud {
     }
     if (Math.abs(speed - s.speed) > 0.002) {
       this.speedFill.style.width = `${Math.round(speed * 100)}%`;
-      this.speedFill.style.background = mix(NEON.rampEdge, NEON.coping, speed);
+      this.speedFill.style.background = mix(pal().rampEdge, pal().coping, speed);
     }
     this.shown = { score, streak, speed };
   }
@@ -110,14 +112,14 @@ export class Hud {
       case 'judged':
         this.lastDeltaMs = e.delta * 1000;
         this.renderDelta();
-        if (e.trick === null) this.show('ŠPATNÝ TRIK', null, NEON.miss);
-        else this.show(TIMING_LABEL[e.timing], e.trick.name, TIMING_COLOR[e.timing]);
+        if (e.trick === null) this.show('ŠPATNÝ TRIK', null, pal().miss);
+        else this.show(TIMING_LABEL[e.timing], e.trick.name, timingColor(e.timing));
         break;
-      case 'tooEarly': this.show('MOC BRZY', 'počkej na kruh', NEON.dim); break;
-      case 'landed': this.show(`+${e.score.total}`, e.trick.name, TIMING_COLOR[e.timing]); break;
-      case 'emptyAir': this.show('BEZ TRIKU', 'ztrácíš rychlost', NEON.dim); break;
-      case 'bail': this.show('BAIL!', BAIL_TEXT[e.bailReason], NEON.miss); break;
-      case 'outOfSpeed': this.show('DOŠLA RYCHLOST', null, NEON.dim); break;
+      case 'tooEarly': this.show('MOC BRZY', 'počkej na kruh', pal().dim); break;
+      case 'landed': this.show(`+${e.score.total}`, e.trick.name, timingColor(e.timing)); break;
+      case 'emptyAir': this.show('BEZ TRIKU', 'ztrácíš rychlost', pal().dim); break;
+      case 'bail': this.show('BAIL!', BAIL_TEXT[e.bailReason], pal().miss); break;
+      case 'outOfSpeed': this.show('DOŠLA RYCHLOST', null, pal().dim); break;
       case 'finished': break;
     }
   }

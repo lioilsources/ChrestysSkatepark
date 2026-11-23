@@ -2,12 +2,13 @@
 // Board and body in skater-local metres (y up, +x = facing forward). Board and body
 // stay separate so spin (horizontal squash), flip (board rotation) and grab (body
 // shape) compose freely. The caller sets a y-up transform (metres → pixels).
-// Head sprites and deck graphics come in F3 (avatar_sprites.dart); until then the
-// head is the Dart fallback circle.
+// Head sprites and deck graphics from ui/sprites.ts; without them the Dart fallbacks
+// (plain head circle, plain deck) are drawn.
 import { avatarOutfit, type Avatar } from '../rules/avatar';
 import type { SkaterPose } from '../rules/ride-sim';
 import type { GrabStyle } from '../rules/trick-defs';
-import { NEON } from './palette';
+import { pal } from './palette';
+import type { AvatarSprites } from './sprites';
 
 interface P { x: number; y: number }
 const pt = (x: number, y: number): P => ({ x, y });
@@ -24,6 +25,8 @@ export const argbToCss = (c: number): string => {
   return `rgba(${(c >>> 16) & 0xff},${(c >>> 8) & 0xff},${c & 0xff},${a})`;
 };
 
+/** Head sprite height in metres: cartoon proportions, the face must read across the bar. */
+const HEAD_HEIGHT = 0.74;
 const BOARD_Y = 0.1;
 const FOOT_Y = BOARD_Y + 0.04;
 const THIGH = 0.46;
@@ -102,11 +105,11 @@ function joint(a: P, b: P, l1: number, l2: number, bend: P): P {
   return add(add(a, mul(dir, along)), mul(perp, h));
 }
 
-// ── Styled drawing (style_paint.dart drawStyled, neon only until F3) ──────
+// ── Styled drawing (style_paint.dart drawStyled) ─────────────────────────
 
-interface Shape { path: Path2D; fill?: string; stroke?: string; width?: number }
+export interface Shape { path: Path2D; fill?: string; stroke?: string; width?: number }
 
-const circle = (c: P, r: number): Path2D => {
+export const circle = (c: P, r: number): Path2D => {
   const p = new Path2D();
   p.arc(c.x, c.y, r, 0, Math.PI * 2);
   return p;
@@ -122,19 +125,33 @@ const rrect = (l: number, b: number, r: number, t: number, rad: number): Path2D 
   return p;
 };
 
-/** Neon: a soft halo pass under every shape, then the shapes (drawStyled). */
-function drawStyled(g: CanvasRenderingContext2D, shapes: Shape[], ink = 0.06): void {
+/**
+ * Two passes, so one limb's outline never cuts across another: first every comic
+ * ink outline or neon halo, then the shapes. ink = outline width in metres.
+ */
+export function drawStyled(g: CanvasRenderingContext2D, shapes: Shape[], ink = 0.06): void {
+  const spec = pal();
   g.save();
   g.lineCap = 'round';
   g.lineJoin = 'round';
-  g.globalAlpha = 0.45;
-  for (const s of shapes) {
-    const w = s.stroke ? s.width ?? 0.05 : ink;
-    g.strokeStyle = s.stroke ?? s.fill ?? '#fff';
-    g.lineWidth = w * 2.2;
-    g.shadowColor = g.strokeStyle;
-    g.shadowBlur = w * 1.2 * Math.abs(g.getTransform().a);
-    g.stroke(s.path);
+  if (spec.ink !== null) {
+    g.strokeStyle = spec.ink;
+    for (const s of shapes) {
+      g.lineWidth = s.stroke ? (s.width ?? 0.05) + ink : ink;
+      g.stroke(s.path);
+    }
+  } else if (spec.glow) {
+    // MaskFilter.blur → shadowBlur (in device pixels, so scale by the transform).
+    const px = Math.hypot(g.getTransform().a, g.getTransform().b);
+    g.globalAlpha = 0.45;
+    for (const s of shapes) {
+      const w = s.stroke ? s.width ?? 0.05 : ink;
+      g.strokeStyle = s.stroke ?? s.fill ?? '#fff';
+      g.lineWidth = w * 2.2;
+      g.shadowColor = g.strokeStyle;
+      g.shadowBlur = w * 1.2 * px;
+      g.stroke(s.path);
+    }
   }
   g.restore();
   g.save();
@@ -154,7 +171,7 @@ function drawStyled(g: CanvasRenderingContext2D, shapes: Shape[], ink = 0.06): v
   g.restore();
 }
 
-function paintBoard(g: CanvasRenderingContext2D, p: SkaterPose, r: Rig): void {
+function paintBoard(g: CanvasRenderingContext2D, p: SkaterPose, r: Rig, graphic: HTMLImageElement | undefined): void {
   g.save();
   g.scale(p.facing === 0 ? 0.001 : p.facing, 1);
   if (p.bail > 0) {
@@ -179,19 +196,28 @@ function paintBoard(g: CanvasRenderingContext2D, p: SkaterPose, r: Rig): void {
   g.translate(0, 0.05 * sr);
   const half = 0.03 + 0.07 * Math.abs(sr);
   const wy = -(half + 0.035) * Math.sign(cr);
+  const c = pal();
   const shapes: Shape[] = [];
   if (Math.abs(cr) > 0.25) {
-    shapes.push({ path: circle(pt(-0.27, wy), 0.04), fill: NEON.skater }, { path: circle(pt(0.27, wy), 0.04), fill: NEON.skater });
+    shapes.push({ path: circle(pt(-0.27, wy), 0.04), fill: c.skater }, { path: circle(pt(0.27, wy), 0.04), fill: c.skater });
   }
-  shapes.push({ path: rrect(-0.42, -half, 0.42, half, half), fill: NEON.board });
-  if (Math.abs(sr) > 0.15) {
-    shapes.push({ path: rrect(-0.38, -half * 0.7, 0.38, half * 0.7, half * 0.7), fill: sr > 0 ? NEON.grip : NEON.board });
-  }
+  shapes.push({ path: rrect(-0.42, -half, 0.42, half, half), fill: c.board });
+  const face = rrect(-0.38, -half * 0.7, 0.38, half * 0.7, half * 0.7);
+  // Face towards the viewer: grip on the top half of the turn, graphic below.
+  if (Math.abs(sr) > 0.15) shapes.push({ path: face, fill: sr > 0 ? c.grip : c.board });
   drawStyled(g, shapes, 0.04);
+  if (sr < -0.15 && graphic) {
+    g.save();
+    g.clip(face);
+    g.scale(1, -1);
+    const fh = half * 0.7;
+    g.drawImage(graphic, -0.38, -fh, 0.76, 2 * fh);
+    g.restore();
+  }
   g.restore();
 }
 
-function paintBody(g: CanvasRenderingContext2D, p: SkaterPose, r: Rig, avatar: Avatar): void {
+function paintBody(g: CanvasRenderingContext2D, p: SkaterPose, r: Rig, avatar: Avatar, head: HTMLImageElement | undefined): void {
   g.save();
   g.scale(p.facing === 0 ? 0.001 : p.facing, 1);
   if (p.bail > 0) {
@@ -231,15 +257,27 @@ function paintBody(g: CanvasRenderingContext2D, p: SkaterPose, r: Rig, avatar: A
     ...r.feet.flatMap(leg),
     { path: line(r.hip, r.shoulder), stroke: argbToCss(outfit.shirt), width: 0.24 },
   ]);
-  // Head: sprite in F3; Dart fallback is a plain circle.
-  drawStyled(g, [{ path: circle(add(r.shoulder, pt(0.03, 0.2)), 0.15), fill: skin }]);
+  // Head: sprite (stored facing left, so mirrored to face +x), leaning with the
+  // torso. Falls back to a plain circle.
+  const lean = Math.atan2(r.shoulder.x - r.hip.x, r.shoulder.y - r.hip.y);
+  if (head && head.naturalHeight > 0) {
+    const hh = HEAD_HEIGHT, hw = (HEAD_HEIGHT * head.naturalWidth) / head.naturalHeight;
+    g.save();
+    g.translate(r.shoulder.x + 0.04, r.shoulder.y - 0.12);
+    g.rotate(-lean);
+    g.scale(-1, -1);
+    g.drawImage(head, -hw / 2, -hh, hw, hh);
+    g.restore();
+  } else {
+    drawStyled(g, [{ path: circle(add(r.shoulder, pt(0.03, 0.2)), 0.15), fill: skin }]);
+  }
   drawStyled(g, arm(r.hands[0]));
   g.restore();
 }
 
 /** Draws the skater at the current transform origin (board contact point, y up, metres). */
-export function paintSkater(g: CanvasRenderingContext2D, p: SkaterPose, avatar: Avatar): void {
+export function paintSkater(g: CanvasRenderingContext2D, p: SkaterPose, avatar: Avatar, sprites: AvatarSprites): void {
   const rig = solveRig(p);
-  paintBoard(g, p, rig);
-  paintBody(g, p, rig, avatar);
+  paintBoard(g, p, rig, sprites.decks.get(avatar.deck));
+  paintBody(g, p, rig, avatar, sprites.heads.get(avatar.preset.id));
 }

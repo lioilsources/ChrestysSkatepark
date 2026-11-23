@@ -6,7 +6,7 @@
 // Keyboard (web only): the physical 3×3 block Q W E / A S D / Z X C or the numpad
 // builds the path, Space / Enter releases it, Esc / Backspace clears.
 import { areAdjacent, midpointNode } from '../rules/grid';
-import { NEON } from './palette';
+import { pal, withAlpha } from './palette';
 
 /** e.code → grid node. Physical keys, so QWERTZ (Y/Z swapped) works the same. */
 const KEY_NODES: Record<string, number> = {
@@ -160,18 +160,18 @@ export class SwipePad {
     for (let n = 0; n < 9; n++) {
       const c = this.center(n);
       const lit = this.nodes.includes(n);
-      g.fillStyle = lit ? NEON.rampEdge : 'rgba(244,241,232,0.3)';
+      g.fillStyle = lit ? pal().rampEdge : withAlpha(pal().skater, 0.3);
       g.beginPath();
       g.arc(c.x, c.y, cell * 0.12, 0, Math.PI * 2);
       g.fill();
-      g.strokeStyle = lit ? 'rgba(62,240,255,0.8)' : 'rgba(244,241,232,0.25)';
+      g.strokeStyle = lit ? withAlpha(pal().rampEdge, 0.8) : withAlpha(pal().skater, 0.25);
       g.lineWidth = 3;
       g.beginPath();
       g.arc(c.x, c.y, cell * 0.3, 0, Math.PI * 2);
       g.stroke();
     }
     if (this.nodes.length === 0) return;
-    g.strokeStyle = 'rgba(62,240,255,0.85)';
+    g.strokeStyle = withAlpha(pal().rampEdge, 0.85);
     g.lineWidth = cell * 0.09;
     g.lineCap = 'round';
     g.lineJoin = 'round';

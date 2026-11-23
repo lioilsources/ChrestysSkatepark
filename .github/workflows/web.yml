@@ -6,9 +6,9 @@ name: Web
 on:
   push:
     branches: [main]
-    paths: ['babylon/**', 'docs/**', 'rattleramp/lib/core/**', 'rattleramp/assets/tricks.json', 'rattleramp/tool/dump_vectors.dart', '.github/workflows/web.yml']
+    paths: ['babylon/**', 'docs/**', 'rattleramp/lib/core/**', 'rattleramp/assets/tricks.json', 'rattleramp/assets/sprites/**', 'rattleramp/lib/ui/theme.dart', 'rattleramp/tool/dump_vectors.dart', '.github/workflows/web.yml']
   pull_request:
-    paths: ['babylon/**', 'rattleramp/lib/core/**', 'rattleramp/assets/tricks.json', 'rattleramp/tool/dump_vectors.dart', '.github/workflows/web.yml']
+    paths: ['babylon/**', 'rattleramp/lib/core/**', 'rattleramp/assets/tricks.json', 'rattleramp/assets/sprites/**', 'rattleramp/lib/ui/theme.dart', 'rattleramp/tool/dump_vectors.dart', '.github/workflows/web.yml']
   workflow_dispatch:
 
 permissions:
