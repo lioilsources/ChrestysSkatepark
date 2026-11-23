@@ -3,8 +3,16 @@
 // sequence on lift. A node is hit when the pointer passes within hitRadius × cell
 // of its centre; fast swipes are sampled along the segment and a skipped node on
 // a straight line (0→2 over 1) is filled in.
+// Keyboard (web only): the physical 3×3 block Q W E / A S D / Z X C or the numpad
+// builds the path, Space / Enter releases it, Esc / Backspace clears.
 import { areAdjacent, midpointNode } from '../rules/grid';
 import { NEON } from './palette';
+
+/** e.code → grid node. Physical keys, so QWERTZ (Y/Z swapped) works the same. */
+const KEY_NODES: Record<string, number> = {
+  KeyQ: 0, KeyW: 1, KeyE: 2, KeyA: 3, KeyS: 4, KeyD: 5, KeyZ: 6, KeyX: 7, KeyC: 8,
+  Numpad7: 0, Numpad8: 1, Numpad9: 2, Numpad4: 3, Numpad5: 4, Numpad6: 5, Numpad1: 6, Numpad2: 7, Numpad3: 8,
+};
 
 /** Ignore touches this close to the physical screen edge (frame / palm). */
 const EDGE_GUARD = 18;
@@ -29,6 +37,45 @@ export class SwipePad {
     el.addEventListener('pointerup', (e) => this.up(e, true));
     el.addEventListener('pointercancel', (e) => this.up(e, false));
     new ResizeObserver(() => this.draw()).observe(el);
+  }
+
+  /** Drop a half-drawn path (new ride). */
+  clear(): void {
+    this.nodes.length = 0;
+    this.draw();
+  }
+
+  /**
+   * Keyboard input. Returns true when the key was used. Space/Enter with an
+   * empty path is left to the caller (e.g. to dismiss the stat card).
+   */
+  key(e: KeyboardEvent): boolean {
+    if (this.pointer !== null || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return false;
+    const n = KEY_NODES[e.code];
+    if (n !== undefined) {
+      const prev = this.nodes[this.nodes.length - 1];
+      if (prev === n) return true;
+      if (prev !== undefined && !areAdjacent(prev, n)) {
+        const mid = midpointNode(prev, n);
+        if (mid !== null) this.nodes.push(mid);
+      }
+      this.nodes.push(n);
+      this.draw();
+      return true;
+    }
+    if (e.code === 'Escape' || e.code === 'Backspace') {
+      this.nodes.length = 0;
+      this.draw();
+      return true;
+    }
+    if ((e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') && this.nodes.length > 0) {
+      const nodes = [...this.nodes];
+      this.nodes.length = 0;
+      this.draw();
+      this.onRelease(nodes);
+      return true;
+    }
+    return false;
   }
 
   private local(e: PointerEvent): { x: number; y: number } {
